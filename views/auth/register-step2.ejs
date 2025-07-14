@@ -1,0 +1,92 @@
+<% layout('layouts/auth') -%>
+
+<h2 class="mb-4 text-center">Step 3: Your Details</h2>
+
+<% layout('layouts/auth') -%>
+
+<h2 class="mb-4 text-center">Step 3: Your Details</h2>
+
+<form action="/auth/register/details" method="POST" class="needs-validation" novalidate id="detailsForm">
+  <div class="d-flex gap-3 mb-3">
+    <div class="flex-grow-1">
+      <label for="firstName" class="form-label">First Name</label>
+      <input type="text" name="firstName" id="firstName" class="form-control" required />
+    </div>
+
+    <div class="flex-grow-1">
+      <label for="lastName" class="form-label">Last Name</label>
+      <input type="text" name="lastName" id="lastName" class="form-control" required />
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Date of Birth</label>
+    <div class="d-flex gap-2">
+      <select name="dobDay" id="dobDay" class="form-select" required aria-label="Day of birth">
+        <option value="" disabled selected>Day</option>
+        <% for(let d = 1; d <= 31; d++) { %>
+          <option value="<%= d.toString().padStart(2, '0') %>"><%= d %></option>
+        <% } %>
+      </select>
+
+      <select name="dobMonth" id="dobMonth" class="form-select" required aria-label="Month of birth">
+        <option value="" disabled selected>Month</option>
+        <% 
+          const months = ['01 - Jan', '02 - Feb', '03 - Mar', '04 - Apr', '05 - May', '06 - Jun',
+                          '07 - Jul', '08 - Aug', '09 - Sep', '10 - Oct', '11 - Nov', '12 - Dec'];
+          months.forEach((m) => {
+        %>
+          <option value="<%= m.slice(0, 2) %>"><%= m %></option>
+        <% }) %>
+      </select>
+
+      <input type="number" name="dobYear" id="dobYear" class="form-control" placeholder="Year" min="1900" max="<%= new Date().getFullYear() %>" required aria-label="Year of birth" />
+    </div>
+    <!-- Hidden input for combined date -->
+    <input type="hidden" name="dateOfBirth" id="dateOfBirth" />
+  </div>
+
+  <div class="mb-4">
+    <label for="sex" class="form-label">Sex</label>
+    <select name="sex" id="sex" class="form-select" required>
+      <option value="" disabled selected>Select</option>
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+      <option value="other">Other</option>
+    </select>
+  </div>
+
+  <div class="d-grid">
+    <button type="submit" class="btn btn-primary">Next</button>
+  </div>
+</form>
+
+<script>
+  (() => {
+    const form = document.getElementById('detailsForm');
+    form.addEventListener('submit', (e) => {
+      const day = document.getElementById('dobDay').value;
+      const month = document.getElementById('dobMonth').value;
+      const year = document.getElementById('dobYear').value;
+
+      if (!day || !month || !year) {
+        e.preventDefault();
+        alert('Please select day, month, and enter year of birth.');
+        return;
+      }
+
+      // Basic validation for year range
+      const yearNum = parseInt(year, 10);
+      const currentYear = new Date().getFullYear();
+      if (yearNum < 1900 || yearNum > currentYear) {
+        e.preventDefault();
+        alert('Please enter a valid year between 1900 and ' + currentYear + '.');
+        return;
+      }
+
+      // Compose date string YYYY-MM-DD
+      const dob = `${yearNum}-${month}-${day}`;
+      document.getElementById('dateOfBirth').value = dob;
+    });
+  })();
+</script>

@@ -1,0 +1,84 @@
+<% layout('layouts/auth') -%>
+
+<h2 class="mb-4 text-center">Step 5 (Optional): Upload Profile Picture</h2>
+
+<div class="text-center mb-4">
+  <% 
+    const getInitials = (firstName, lastName) => {
+      const f = firstName ? firstName.charAt(0).toUpperCase() : '';
+      const l = lastName ? lastName.charAt(0).toUpperCase() : '';
+      return f + l;
+    };
+  %>
+
+  <div id="avatar" 
+       style="
+         width: 120px; 
+         height: 120px; 
+         border-radius: 50%; 
+         background-color: #ccc; 
+         font-size: 48px; 
+         font-weight: 700; 
+         color: white; 
+         display: flex; 
+         align-items: center; 
+         justify-content: center; 
+         margin: 0 auto;
+         overflow: hidden;
+         user-select: none;
+       ">
+    <% if (user && user.profilePicUrl) { %>
+      <img src="<%= user.profilePicUrl %>" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover;" />
+    <% } else { %>
+      <%= getInitials(user.firstName, user.lastName) %>
+    <% } %>
+  </div>
+</div>
+
+<!-- Error & Success Messages -->
+<% if (error) { %>
+  <div class="alert alert-danger text-center"><%= error %></div>
+<% } %>
+
+<% if (success) { %>
+  <div class="alert alert-success text-center"><%= success %></div>
+<% } %>
+
+<form action="/auth/register/profile-pic" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+  <div class="mb-4">
+    <label for="profilePic" class="form-label">Profile Picture</label>
+    <input type="file" name="profilePic" id="profilePic" accept="image/*" class="form-control" />
+  </div>
+
+  <div class="d-grid mb-3">
+    <button type="submit" class="btn btn-success">Finish</button>
+  </div>
+
+  <div class="text-center">
+    <a href="/user/dashboard" class="text-decoration-none">Skip this step</a>
+  </div>
+</form>
+
+<script>
+  // Preview image on file select
+  const input = document.getElementById('profilePic');
+  const avatar = document.getElementById('avatar');
+
+  input.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      avatar.innerHTML = '';
+      const img = document.createElement('img');
+      img.src = event.target.result;
+      img.alt = 'Profile Picture Preview';
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'cover';
+      avatar.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+</script>

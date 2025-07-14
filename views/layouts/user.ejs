@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title><%= title %></title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/styles.css" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f2f5;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background-color: #007bff;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    /* Hamburger Button */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      cursor: pointer;
+      width: 24px;
+      height: 18px;
+      justify-content: space-between;
+    }
+
+    .menu-toggle span {
+      display: block;
+      height: 3px;
+      background: white;
+      border-radius: 2px;
+    }
+
+    /* Sidebar and main container */
+    .container {
+      display: flex;
+      flex: 1;
+      min-height: calc(100vh - 70px);
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: #fff;
+      padding: 1.5rem 1rem;
+      box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .sidebar ul {
+      list-style: none;
+    }
+
+    .sidebar ul li {
+      margin-bottom: 1rem;
+    }
+
+    .sidebar ul li a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: color 0.2s ease;
+    }
+
+    .sidebar ul li a:hover {
+      color: #007bff;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 2rem;
+      background-color: #fff;
+      border-left: 1px solid #eee;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    /* Mobile nav styles */
+    .mobile-nav {
+      display: none;
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background: white;
+      width: 200px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      border-radius: 0 0 4px 4px;
+      flex-direction: column;
+      padding: 1rem;
+      z-index: 1500;
+    }
+
+    .mobile-nav a {
+      padding: 0.5rem 0;
+      color: #333;
+      font-weight: 600;
+      border-bottom: 1px solid #eee;
+    }
+
+    .mobile-nav a:last-child {
+      border-bottom: none;
+    }
+
+    /* Show hamburger and hide sidebar on mobile */
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .menu-toggle {
+        display: flex;
+      }
+
+      /* Hide mobile nav by default */
+      .mobile-nav {
+        display: none;
+      }
+
+      /* Show nav when active */
+      .mobile-nav.active {
+        display: flex;
+      }
+
+      .main-content {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>My App</h1>
+
+    <!-- Hamburger menu toggle -->
+    <div class="menu-toggle" id="menu-toggle" aria-label="Toggle menu" aria-expanded="false" role="button" tabindex="0">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <!-- Mobile nav menu -->
+    <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Mobile menu">
+      <a href="/user/dashboard">Dashboard</a>
+      <a href="/user/profile">Profile</a>
+      <a href="/auth/logout">Logout</a>
+    </nav>
+  </header>
+
+  <div class="container">
+    <aside class="sidebar">
+      <ul>
+        <li><a href="/user/dashboard">Dashboard</a></li>
+        <li><a href="/user/profile">Profile</a></li>
+        <li><a href="/auth/logout">Logout</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <%- body %>
+    </main>
+  </div>
+
+  <script>
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileNav = document.getElementById('mobile-nav');
+
+    function toggleMenu() {
+      const isActive = mobileNav.classList.toggle('active');
+      menuToggle.setAttribute('aria-expanded', isActive);
+    }
+
+    menuToggle.addEventListener('click', toggleMenu);
+
+    // Optional: keyboard accessibility for toggle button
+    menuToggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleMenu();
+      }
+    });
+
+    // Close mobile menu if clicking outside
+    document.addEventListener('click', (e) => {
+      if (!mobileNav.contains(e.target) && !menuToggle.contains(e.target)) {
+        mobileNav.classList.remove('active');
+        menuToggle.setAttribute('aria-expanded', false);
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<% layout('layouts/auth') -%>
+
+<!-- intl-tel-input CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.min.css"/>
+
+<h2 class="mb-4 text-center">Step 4 (Optional): Phone Number</h2>
+
+<form action="/auth/register/phone" method="POST" class="needs-validation" novalidate>
+  <div class="mb-3">
+    <label for="phone" class="form-label d-block">Phone Number</label>
+    <input id="phone" type="tel" name="phoneNumber" class="form-control" placeholder="Phone Number" required />
+
+    <!-- Hidden input for selected country code -->
+    <input type="hidden" name="countryCode" id="countryCode" />
+  </div>
+
+  <div class="d-grid mb-2">
+    <button type="submit" class="btn btn-primary">Next</button>
+  </div>
+
+  <div class="text-center">
+    <a href="/auth/register/profile-pic" class="text-decoration-none">Skip this step</a>
+  </div>
+</form>
+
+<!-- intl-tel-input JS -->
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"></script>
+
+<script>
+  const input = document.querySelector("#phone");
+  const countryCodeInput = document.querySelector("#countryCode");
+
+  const iti = window.intlTelInput(input, {
+    initialCountry: "ug", // or use "auto" with geo IP lookup
+    separateDialCode: true,
+    preferredCountries: ["ug", "us", "gb"],
+    utilsScript: "https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js"
+  });
+
+  // Set hidden input value on init and country change
+  const updateCountryCode = () => {
+    const dialCode = iti.getSelectedCountryData().dialCode;
+    countryCodeInput.value = "+" + dialCode;
+  };
+
+  input.addEventListener("countrychange", updateCountryCode);
+
+  window.addEventListener("DOMContentLoaded", updateCountryCode);
+</script>

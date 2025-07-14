@@ -1,0 +1,135 @@
+<% layout('layouts/user') -%>
+
+<style>
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .profile-pic {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #ccc;
+    color: #555;
+    font-weight: bold;
+    font-size: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    user-select: none;
+    flex-shrink: 0;
+  }
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .profile-info .name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+  }
+  .profile-info .email,
+  .profile-info .username {
+    margin: 2px 0;
+    color: #666;
+    font-size: 0.9rem;
+  }
+  form {
+    margin-bottom: 2rem;
+  }
+  label {
+    display: block;
+    margin: 0.5rem 0 0.2rem;
+    font-weight: 600;
+  }
+  input, select, button {
+    padding: 0.4rem 0.6rem;
+    font-size: 1rem;
+    width: 100%;
+    max-width: 350px;
+    box-sizing: border-box;
+  }
+  button {
+    margin-top: 1rem;
+    cursor: pointer;
+  }
+  .error {
+    color: #b00020;
+    font-weight: bold;
+  }
+  .success {
+    color: #2e7d32;
+    font-weight: bold;
+  }
+</style>
+
+<h2>Your Profile</h2>
+
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+<% if (success) { %><p class="success"><%= success %></p><% } %>
+
+<div class="profile-header">
+  <% if (user.profilePicUrl) { %>
+    <img class="profile-pic" src="<%= user.profilePicUrl %>" alt="Profile Picture" />
+  <% } else { 
+      // Generate initials fallback
+      const initials = (user.firstName && user.lastName) ? (user.firstName[0] + user.lastName[0]) : (user.username ? user.username.slice(0, 2) : 'NA');
+  %>
+    <div class="profile-pic"><%= initials.toUpperCase() %></div>
+  <% } %>
+
+  <div class="profile-info">
+    <p class="name"><%= user.firstName && user.lastName ? (user.firstName + ' ' + user.lastName) : user.username %></p>
+    <p class="email"><%= user.email %></p>
+    <p class="username">@<%= user.username %></p>
+  </div>
+</div>
+
+<form action="/user/update-profile" method="POST" enctype="multipart/form-data">
+  <label>First Name:</label><input name="firstName" value="<%= user.firstName || '' %>" />
+  <label>Last Name:</label><input name="lastName" value="<%= user.lastName || '' %>" />
+  <label>Date of Birth:</label><input type="date" name="dateOfBirth" value="<%= user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : '' %>" />
+  <label>Sex:</label>
+  <select name="sex">
+    <option value="male" <%= user.sex === 'male' ? 'selected' : '' %>>Male</option>
+    <option value="female" <%= user.sex === 'female' ? 'selected' : '' %>>Female</option>
+    <option value="other" <%= user.sex === 'other' ? 'selected' : '' %>>Other</option>
+  </select>
+  <label>Phone:</label>
+  <input name="countryCode" placeholder="+256" value="<%= user.countryCode || '' %>" style="width: 70px; display: inline-block; margin-right: 0.5rem;" />
+  <input name="phoneNumber" value="<%= user.phoneNumber || '' %>" style="width: calc(100% - 80px); display: inline-block;" />
+  <label>Profile Pic:</label><input type="file" name="profilePic" />
+  <% if (user.profilePicUrl) { %>
+    <img src="<%= user.profilePicUrl %>" width="100" style="margin-top: 0.5rem; border-radius: 8px;" />
+  <% } %>
+  <button type="submit">Update Profile</button>
+</form>
+
+<h3>Change Password</h3>
+<form action="/user/change-password" method="POST">
+  <label>Current Password:</label><input type="password" name="currentPassword" required />
+  <label>New Password:</label><input type="password" name="newPassword" required />
+  <button type="submit">Change Password</button>
+</form>
+
+<h3>Change Email</h3>
+<form action="/user/change-email" method="POST">
+  <label>New Email:</label><input type="email" name="newEmail" required />
+  <button type="submit">Send Verification Code</button>
+</form>
+
+<% if (session && session.pendingEmail) { %>
+  <h4>Enter Code Sent to <%= session.pendingEmail %></h4>
+  <form action="/user/verify-new-email" method="POST">
+    <label>Code:</label><input name="code" maxlength="8" required />
+    <button type="submit">Verify Email</button>
+  </form>
+<% } %>
+
+<h3>Delete Account</h3>
+<form action="/user/delete" method="POST" onsubmit="return confirm('Are you sure?');">
+  <button type="submit" style="color: red;">Delete My Account</button>
+</form>

@@ -1,0 +1,100 @@
+<% layout('layouts/auth') -%>
+
+<h2 class="mb-4 text-center">Step 4: Verify Your Phone</h2>
+
+<% if (success) { %>
+  <div class="alert alert-success text-center"><%= success %></div>
+<% } %>
+
+<% if (error) { %>
+  <div class="alert alert-danger text-center"><%= error %></div>
+<% } %>
+
+<p class="text-center mb-3">
+  Enter the 6-digit code we sent to your phone number.
+</p>
+
+<form action="/auth/verify-phone" method="POST" class="needs-validation" novalidate id="verificationForm">
+  <div class="mb-3">
+    <label class="form-label">Verification Code</label>
+    <div class="d-flex justify-content-center gap-2" id="code-inputs">
+      <% for (let i = 0; i < 6; i++) { %>
+        <input
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="1"
+          class="form-control text-center"
+          style="width: 3rem; font-size: 1.5rem;"
+          aria-label="Digit <%= i + 1 %>"
+        />
+      <% } %>
+    </div>
+    <!-- Hidden input to submit combined code -->
+    <input type="hidden" name="code" id="code" required />
+    <% if (typeof phone !== 'undefined') { %>
+      <input type="hidden" name="phoneNumber" value="<%= phone %>" />
+    <% } %>
+  </div>
+
+  <div class="d-grid mb-3">
+    <button type="submit" class="btn btn-primary">Verify</button>
+  </div>
+
+  <div class="text-center">
+    <form action="/auth/resend-code" method="POST" class="d-inline">
+      <% if (typeof phone !== 'undefined') { %>
+        <input type="hidden" name="phoneNumber" value="<%= phone %>" />
+      <% } %>
+      <button type="submit" class="btn btn-link p-0">Resend Code</button>
+    </form>
+  </div>
+</form>
+
+<script>
+  (() => {
+    const inputs = document.querySelectorAll('#code-inputs input');
+    const hiddenInput = document.getElementById('code');
+    const form = document.getElementById('verificationForm');
+
+    inputs.forEach((input, idx) => {
+      input.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (!/^\d$/.test(val)) {
+          e.target.value = '';
+          return;
+        }
+        if (idx < inputs.length - 1 && val) {
+          inputs[idx + 1].focus();
+        }
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && idx > 0) {
+          inputs[idx - 1].focus();
+        }
+      });
+
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+        for (let i = 0; i < inputs.length; i++) {
+          inputs[i].value = paste[i] || '';
+        }
+        const lastFilled = paste.length < 6 ? paste.length : 5;
+        inputs[lastFilled].focus();
+      });
+    });
+
+    form.addEventListener('submit', (e) => {
+      const code = Array.from(inputs).map(input => input.value).join('');
+      if (code.length !== 6) {
+        e.preventDefault();
+        alert('Please enter all 6 digits of the verification code.');
+        inputs[code.length].focus();
+        return;
+      }
+      hiddenInput.value = code;
+    });
+  })();
+</script>
