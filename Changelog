@@ -1,0 +1,7 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+## [Unreleased]
+
+- Initial development of OAuth 2.0 and OpenID Connect server with PKCE, token revocation, multi-step registration and authentication system.

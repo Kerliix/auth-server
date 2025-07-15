@@ -1,0 +1,25 @@
+<% layout('layouts/oauth') -%>
+<h2>Authorize Application</h2>
+<p><strong><%= client.name %></strong> is requesting access to your account.</p>
+
+<form method="POST" action="/oauth/authorize">
+  <input type="hidden" name="client_id" value="<%= client.clientId %>" />
+  <input type="hidden" name="redirect_uri" value="<%= redirect_uri %>" />
+  <input type="hidden" name="state" value="<%= state %>" />
+
+  <fieldset>
+    <legend>Requested Permissions</legend>
+    <% let scopesArray = scope ? scope.split(' ') : []; %>
+    <% scopesArray.forEach(scp => { %>
+      <div>
+        <input type="checkbox" checked disabled id="scope-<%= scp %>" />
+        <label for="scope-<%= scp %>"><%= scp %></label>
+      </div>
+    <% }) %>
+  </fieldset>
+
+  <input type="hidden" name="scope" value="<%= scope %>" />
+
+  <button type="submit" name="approve" value="yes" style="background-color: green; color: white;">Authorize</button>
+  <button type="submit" name="approve" value="" style="background-color: red; color: white;">Deny</button>
+</form>
