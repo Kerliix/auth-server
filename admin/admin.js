@@ -76,7 +76,7 @@ export const uploadProfilePic = async (req, res) => {
 
     res.json({ profilePic: admin.profilePic });
   } catch (error) {
-    console.error('Error uploading profile pic:', error);
+    logger.error('Error uploading profile pic:', error);
     res.status(500).json({ message: 'Server error while uploading profile picture' });
   }
 };

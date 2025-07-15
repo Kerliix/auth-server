@@ -2,6 +2,7 @@
 import User from '../models/User.js';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import logger from '../config/logger.js';
 import { sendVerificationEmail } from '../services/emailService.js';
 
 const hashPassword = async (password) => await bcrypt.hash(password, 12);
@@ -44,7 +45,7 @@ export const postRegisterStep1 = async (req, res) => {
 
     res.redirect('/auth/register/verify');
   } catch (err) {
-    console.error('❌ Error in postRegisterStep1:', err);
+    logger.error('❌ Error in postRegisterStep1:', err);
     res.status(500).send('Server error');
   }
 };
@@ -74,7 +75,7 @@ export const postVerifyEmail = (req, res) => {
     temp.isEmailVerified = true;
     res.redirect('/auth/register/details');
   } catch (err) {
-    console.error('❌ Error in postVerifyEmail:', err);
+    logger.error('Error in postVerifyEmail:', err);
     res.status(500).send('Server error');
   }
 };
@@ -104,7 +105,7 @@ export const postRegisterDetails = (req, res) => {
     };
     res.redirect('/auth/register/phone');
   } catch (err) {
-    console.error('❌ Error in postRegisterDetails:', err);
+    logger.error('Error in postRegisterDetails:', err);
     res.status(500).send('Server error');
   }
 };
@@ -132,7 +133,7 @@ export const postPhoneStep = (req, res) => {
     };
     res.redirect('/auth/register/profile-pic');
   } catch (err) {
-    console.error('❌ Error in postPhoneStep:', err);
+    logger.error('Error in postPhoneStep:', err);
     res.status(500).send('Server error');
   }
 };
@@ -173,7 +174,7 @@ export const postProfilePicStep = async (req, res) => {
 
     res.redirect('/user/dashboard');
   } catch (err) {
-    console.error('❌ Error in postProfilePicStep (saving user):', err);
+    logger.error('Error in postProfilePicStep (saving user):', err);
     res.status(500).render('auth/register-step4', {
       title: 'Profile Picture',
       error: 'Error saving user',
@@ -217,7 +218,7 @@ export const postLogin = async (req, res) => {
     req.session.userId = user._id;
     res.redirect('/user/dashboard');
   } catch (err) {
-    console.error('❌ Error in postLogin:', err);
+    logger.error('Error in postLogin:', err);
     res.status(500).send('Server error');
   }
 };

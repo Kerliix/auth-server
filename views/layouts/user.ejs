@@ -39,9 +39,31 @@
       z-index: 1000;
     }
 
+    .header-left,
+    .header-center,
+    .header-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .header-left {
+      flex: 1;
+    }
+
+    .header-center {
+      flex: 1;
+      justify-content: center;
+    }
+
+    .header-right {
+      flex: 1;
+      justify-content: flex-end;
+    }
+
     header h1 {
       margin: 0;
       font-size: 1.5rem;
+      text-align: center;
     }
 
     /* Hamburger Button */
@@ -105,12 +127,35 @@
       text-decoration: none;
     }
 
+    /* Profile Avatar */
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #fff;
+      color: #007bff;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-transform: uppercase;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
     /* Mobile nav styles */
     .mobile-nav {
       display: none;
       position: absolute;
       top: 100%;
-      right: 0;
+      left: 0;
       background: white;
       width: 200px;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -141,12 +186,10 @@
         display: flex;
       }
 
-      /* Hide mobile nav by default */
       .mobile-nav {
         display: none;
       }
 
-      /* Show nav when active */
       .mobile-nav.active {
         display: flex;
       }
@@ -159,13 +202,27 @@
 </head>
 <body>
   <header>
-    <h1>My App</h1>
+    <!-- Left: Hamburger -->
+    <div class="header-left">
+      <div class="menu-toggle" id="menu-toggle" aria-label="Toggle menu" aria-expanded="false" role="button" tabindex="0">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
 
-    <!-- Hamburger menu toggle -->
-    <div class="menu-toggle" id="menu-toggle" aria-label="Toggle menu" aria-expanded="false" role="button" tabindex="0">
-      <span></span>
-      <span></span>
-      <span></span>
+    <!-- Center: Title -->
+    <div class="header-center">
+      <h1>My App</h1>
+    </div>
+
+    <!-- Right: Avatar -->
+    <div class="header-right">
+      <a href="/user/profile" id="profile-link">
+        <div class="avatar" id="user-avatar">
+          <!-- This gets replaced dynamically -->
+        </div>
+      </a>
     </div>
 
     <!-- Mobile nav menu -->
@@ -191,6 +248,7 @@
   </div>
 
   <script>
+    // Hamburger toggle
     const menuToggle = document.getElementById('menu-toggle');
     const mobileNav = document.getElementById('mobile-nav');
 
@@ -200,8 +258,6 @@
     }
 
     menuToggle.addEventListener('click', toggleMenu);
-
-    // Optional: keyboard accessibility for toggle button
     menuToggle.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
@@ -209,13 +265,26 @@
       }
     });
 
-    // Close mobile menu if clicking outside
     document.addEventListener('click', (e) => {
       if (!mobileNav.contains(e.target) && !menuToggle.contains(e.target)) {
         mobileNav.classList.remove('active');
         menuToggle.setAttribute('aria-expanded', false);
       }
     });
+
+    // Avatar logic
+    const avatar = document.getElementById('user-avatar');
+    const user = {
+      name: "<%= user.name || 'User Name' %>",
+      imageUrl: "<%= user.profileImageUrl || '' %>"
+    };
+
+    if (user.imageUrl && user.imageUrl.trim() !== '') {
+      avatar.innerHTML = `<img src="${user.imageUrl}" alt="${user.name}" />`;
+    } else {
+      const initials = user.name.split(' ').map(n => n[0]).slice(0, 2).join('');
+      avatar.textContent = initials;
+    }
   </script>
 </body>
 </html>

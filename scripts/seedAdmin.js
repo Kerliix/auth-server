@@ -1,6 +1,7 @@
 import connectDB from '../../config/db.js';
 import Admin from '../../models/Admin.js';
 import dotenv from 'dotenv';
+import logger from '../config/logger.js';
 
 dotenv.config();
 
@@ -27,14 +28,14 @@ async function seedAdmins() {
       },
     ]);
 
-    console.log('Seeded admins:');
+    logger.info('Seeded admins:');
     admins.forEach((admin) =>
-      console.log(`- ${admin.name} (${admin.email}) [${admin.role}]`)
+      logger.info(`- ${admin.name} (${admin.email}) [${admin.role}]`)
     );
 
     process.exit(0);
   } catch (error) {
-    console.error('Error seeding admins:', error);
+    logger.error('Error seeding admins:', error);
     process.exit(1);
   }
 }

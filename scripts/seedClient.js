@@ -28,13 +28,13 @@ const seedClients = async () => {
     const existing = await OAuthClient.findOne({ clientId: c.clientId });
     if (!existing) {
       await OAuthClient.create(c);
-      console.log(`Client "${c.name}" created.`);
+      logger.info(`Client "${c.name}" created.`);
     } else {
-      console.log(`Client "${c.name}" already exists.`);
+      logger.info(`Client "${c.name}" already exists.`);
     }
   }
 
   await mongoose.disconnect();
 };
 
-seedClients().catch(console.error);
+seedClients().catch(logger.error);
