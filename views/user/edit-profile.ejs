@@ -1,0 +1,279 @@
+<% layout('layouts/user') -%>
+
+<style>
+  form {
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  label.field-label {
+    display: block;
+    margin: 0.7rem 0 0.3rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 1px dashed #888;
+    padding-bottom: 0.3rem;
+  }
+  /* Modal backdrop */
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+  }
+  .modal-backdrop.active {
+    display: block;
+  }
+  /* Modal card */
+  .modal-card {
+    display: none;
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    max-width: 400px;
+    width: 90%;
+    z-index: 1001;
+  }
+  .modal-card.active {
+    display: block;
+  }
+  .modal-card label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .modal-card input,
+  .modal-card select {
+    width: 100%;
+    padding: 0.4rem 0.6rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+  }
+  .modal-actions {
+    text-align: right;
+  }
+  .modal-actions button {
+    padding: 0.4rem 1rem;
+    margin-left: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  /* Display current values as inline text */
+  .field-value {
+    font-weight: normal;
+    color: #555;
+    margin-left: 0.3rem;
+  }
+</style>
+
+<h2>Edit Profile</h2>
+
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+<% if (success) { %><p class="success"><%= success %></p><% } %>
+
+<form id="editProfileForm" action="/user/update-profile" method="POST" enctype="multipart/form-data">
+
+  <label class="field-label" data-target="modalFirstName">First Name:<span class="field-value"><%= user.firstName || 'Not set' %></span></label>
+  <input type="hidden" name="firstName" id="inputFirstName" value="<%= user.firstName || '' %>" />
+
+  <label class="field-label" data-target="modalLastName">Last Name:<span class="field-value"><%= user.lastName || 'Not set' %></span></label>
+  <input type="hidden" name="lastName" id="inputLastName" value="<%= user.lastName || '' %>" />
+
+  <label class="field-label" data-target="modalDOB">Date of Birth:<span class="field-value"><%= user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : 'Not set' %></span></label>
+  <input type="hidden" name="dateOfBirth" id="inputDOB" value="<%= user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : '' %>" />
+
+  <label class="field-label" data-target="modalSex">Sex:<span class="field-value"><%= user.sex || 'Not set' %></span></label>
+  <input type="hidden" name="sex" id="inputSex" value="<%= user.sex || '' %>" />
+
+  <label class="field-label" data-target="modalPhone">Phone:<span class="field-value"><%= (user.countryCode || '') + ' ' + (user.phoneNumber || '') || 'Not set' %></span></label>
+  <input type="hidden" name="countryCode" id="inputCountryCode" value="<%= user.countryCode || '' %>" />
+  <input type="hidden" name="phoneNumber" id="inputPhoneNumber" value="<%= user.phoneNumber || '' %>" />
+
+  <button type="submit" style="margin-top: 2rem;">Update Profile</button>
+</form>
+
+<!-- Modal Backdrop -->
+<div id="modalBackdrop" class="modal-backdrop"></div>
+
+<!-- Modal Cards -->
+<div id="modalFirstName" class="modal-card" data-field="firstName">
+  <label for="modalInputFirstName">First Name</label>
+  <input type="text" id="modalInputFirstName" value="<%= user.firstName || '' %>" />
+  <div class="modal-actions">
+    <button type="button" id="cancelFirstName">Cancel</button>
+    <button type="button" id="okFirstName">OK</button>
+  </div>
+</div>
+
+<div id="modalLastName" class="modal-card" data-field="lastName">
+  <label for="modalInputLastName">Last Name</label>
+  <input type="text" id="modalInputLastName" value="<%= user.lastName || '' %>" />
+  <div class="modal-actions">
+    <button type="button" id="cancelLastName">Cancel</button>
+    <button type="button" id="okLastName">OK</button>
+  </div>
+</div>
+
+<div id="modalDOB" class="modal-card" data-field="dateOfBirth">
+  <label for="modalInputDOB">Date of Birth</label>
+  <input type="date" id="modalInputDOB" value="<%= user.dateOfBirth ? user.dateOfBirth.toISOString().split('T')[0] : '' %>" />
+  <div class="modal-actions">
+    <button type="button" id="cancelDOB">Cancel</button>
+    <button type="button" id="okDOB">OK</button>
+  </div>
+</div>
+
+<div id="modalSex" class="modal-card" data-field="sex">
+  <label for="modalInputSex">Sex</label>
+  <select id="modalInputSex">
+    <option value="male" <%= user.sex === 'male' ? 'selected' : '' %>>Male</option>
+    <option value="female" <%= user.sex === 'female' ? 'selected' : '' %>>Female</option>
+    <option value="other" <%= user.sex === 'other' ? 'selected' : '' %>>Other</option>
+  </select>
+  <div class="modal-actions">
+    <button type="button" id="cancelSex">Cancel</button>
+    <button type="button" id="okSex">OK</button>
+  </div>
+</div>
+
+<div id="modalPhone" class="modal-card" data-field="phone">
+  <label for="modalInputCountryCode">Country Code</label>
+  <input type="text" id="modalInputCountryCode" value="<%= user.countryCode || '' %>" style="width: 100px; display: inline-block; margin-right: 1rem;" />
+  <label for="modalInputPhoneNumber">Phone Number</label>
+  <input type="text" id="modalInputPhoneNumber" value="<%= user.phoneNumber || '' %>" style="width: calc(100% - 120px); display: inline-block;" />
+  <div class="modal-actions" style="margin-top: 1rem;">
+    <button type="button" id="cancelPhone">Cancel</button>
+    <button type="button" id="okPhone">OK</button>
+  </div>
+</div>
+
+<script>
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const form = document.getElementById('editProfileForm');
+
+  // Helper to open modal
+  function openModal(id) {
+    // Close any open modal first
+    document.querySelectorAll('.modal-card.active').forEach(modal => {
+      modal.classList.remove('active');
+    });
+    modalBackdrop.classList.add('active');
+    document.getElementById(id).classList.add('active');
+  }
+
+  // Helper to close modal
+  function closeModal() {
+    modalBackdrop.classList.remove('active');
+    document.querySelectorAll('.modal-card.active').forEach(modal => {
+      modal.classList.remove('active');
+    });
+  }
+
+  // Map of modal to hidden inputs & display spans
+  const fieldMap = {
+    modalFirstName: {
+      hiddenInput: document.getElementById('inputFirstName'),
+      displaySpan: document.querySelector('label[data-target="modalFirstName"] .field-value'),
+      modalInput: document.getElementById('modalInputFirstName')
+    },
+    modalLastName: {
+      hiddenInput: document.getElementById('inputLastName'),
+      displaySpan: document.querySelector('label[data-target="modalLastName"] .field-value'),
+      modalInput: document.getElementById('modalInputLastName')
+    },
+    modalDOB: {
+      hiddenInput: document.getElementById('inputDOB'),
+      displaySpan: document.querySelector('label[data-target="modalDOB"] .field-value'),
+      modalInput: document.getElementById('modalInputDOB')
+    },
+    modalSex: {
+      hiddenInput: document.getElementById('inputSex'),
+      displaySpan: document.querySelector('label[data-target="modalSex"] .field-value'),
+      modalInput: document.getElementById('modalInputSex')
+    },
+    modalPhone: {
+      hiddenInputs: [
+        document.getElementById('inputCountryCode'),
+        document.getElementById('inputPhoneNumber')
+      ],
+      displaySpan: document.querySelector('label[data-target="modalPhone"] .field-value'),
+      modalInputs: [
+        document.getElementById('modalInputCountryCode'),
+        document.getElementById('modalInputPhoneNumber')
+      ]
+    }
+  };
+
+  // Open modal on label click
+  document.querySelectorAll('label.field-label').forEach(label => {
+    label.addEventListener('click', () => {
+      const targetId = label.getAttribute('data-target');
+      openModal(targetId);
+      // Focus first input in modal
+      const modal = document.getElementById(targetId);
+      const focusEl = modal.querySelector('input, select');
+      if (focusEl) focusEl.focus();
+    });
+  });
+
+  // Close modal on backdrop click
+  modalBackdrop.addEventListener('click', closeModal);
+
+  // Modal button handlers:
+
+  // First Name
+  document.getElementById('okFirstName').addEventListener('click', () => {
+    const val = fieldMap.modalFirstName.modalInput.value.trim();
+    fieldMap.modalFirstName.hiddenInput.value = val;
+    fieldMap.modalFirstName.displaySpan.textContent = val || 'Not set';
+    closeModal();
+  });
+  document.getElementById('cancelFirstName').addEventListener('click', closeModal);
+
+  // Last Name
+  document.getElementById('okLastName').addEventListener('click', () => {
+    const val = fieldMap.modalLastName.modalInput.value.trim();
+    fieldMap.modalLastName.hiddenInput.value = val;
+    fieldMap.modalLastName.displaySpan.textContent = val || 'Not set';
+    closeModal();
+  });
+  document.getElementById('cancelLastName').addEventListener('click', closeModal);
+
+  // Date of Birth
+  document.getElementById('okDOB').addEventListener('click', () => {
+    const val = fieldMap.modalDOB.modalInput.value;
+    fieldMap.modalDOB.hiddenInput.value = val;
+    fieldMap.modalDOB.displaySpan.textContent = val || 'Not set';
+    closeModal();
+  });
+  document.getElementById('cancelDOB').addEventListener('click', closeModal);
+
+  // Sex
+  document.getElementById('okSex').addEventListener('click', () => {
+    const val = fieldMap.modalSex.modalInput.value;
+    fieldMap.modalSex.hiddenInput.value = val;
+    fieldMap.modalSex.displaySpan.textContent = val || 'Not set';
+    closeModal();
+  });
+  document.getElementById('cancelSex').addEventListener('click', closeModal);
+
+  // Phone
+  document.getElementById('okPhone').addEventListener('click', () => {
+    const countryCode = fieldMap.modalPhone.modalInputs[0].value.trim();
+    const phoneNumber = fieldMap.modalPhone.modalInputs[1].value.trim();
+    fieldMap.modalPhone.hiddenInputs[0].value = countryCode;
+    fieldMap.modalPhone.hiddenInputs[1].value = phoneNumber;
+    const displayText = (countryCode || '') + ' ' + (phoneNumber || '');
+    fieldMap.modalPhone.displaySpan.textContent = displayText.trim() || 'Not set';
+    closeModal();
+  });
+  document.getElementById('cancelPhone').addEventListener('click', closeModal);
+
+</script>

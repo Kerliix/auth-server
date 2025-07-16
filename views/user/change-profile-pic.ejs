@@ -1,0 +1,26 @@
+<% layout('layouts/user') -%>
+
+<style>
+  .error {
+    color: #b00020;
+    font-weight: bold;
+  }
+  .success {
+    color: #2e7d32;
+    font-weight: bold;
+  }
+</style>
+
+<h2>Edit Profile</h2>
+
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+<% if (success) { %><p class="success"><%= success %></p><% } %>
+
+<form action="/user/update-profile" method="POST" enctype="multipart/form-data">
+  <label>Profile Pic:</label><input type="file" name="profilePic" />
+  <% if (user.profilePicUrl) { %>
+    <img src="<%= user.profilePicUrl %>" width="100" style="margin-top: 0.5rem; border-radius: 8px;" />
+  <% } %>
+  <button type="submit">Update Profile</button>
+</form>
+

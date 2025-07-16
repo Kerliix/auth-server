@@ -15,6 +15,8 @@ import userRoutes from './routes/userRoutes.js';
 import oauthRoutes from './routes/oauthRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 
+import User from './models/User.js';
+
 dotenv.config();
 
 const app = express();
@@ -37,25 +39,36 @@ app.use(flashMiddleware);
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Rate limiter export (keep this if you want to use it elsewhere)
 export const tokenLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: { error: 'Too many requests, please try again later.' },
 });
 
-// View engine setup with ejs-mate
+// 🔽 Inject logged-in user into all views (EJS Mate layouts too)
+app.use(async (req, res, next) => {
+  if (req.session.userId) {
+    try {
+      const user = await User.findById(req.session.userId).lean(); // .lean() for performance
+      res.locals.user = user;
+    } catch (err) {
+      logger.error('Error injecting user into views:', err);
+      res.locals.user = null;
+    }
+  } else {
+    res.locals.user = null;
+  }
+  next();
+});
+
 app.engine('ejs', engine);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ===== HTTPS enforcement middleware for production =====
 if (NODE_ENV === 'production') {
   app.use((req, res, next) => {
-    // if request is not secure, redirect to https
     if (req.headers['x-forwarded-proto'] !== 'https') {
       return res.redirect(`https://${req.headers.host}${req.url}`);
     }
@@ -63,7 +76,6 @@ if (NODE_ENV === 'production') {
   });
 }
 
-// Health check endpoint for Render or other hosting platforms
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'OK', uptime: process.uptime() });
 });
@@ -74,19 +86,15 @@ app.use('/user', userRoutes);
 app.use('/auth', oauthRoutes);
 app.use('/admin', adminRoutes);
 
-// Home
 app.get('/', (req, res) => res.redirect('/auth/login'));
 
-// DB connection & server start
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     logger.info('MongoDB connected');
 
     app.listen(PORT, () => {
-      // Build full URL for logging
       let url;
       if (NODE_ENV === 'production') {
-        // Assume HTTPS and environment variable DOMAIN (set in Render)
         const domain = process.env.DOMAIN || `localhost:${PORT}`;
         url = `https://${domain}`;
       } else {

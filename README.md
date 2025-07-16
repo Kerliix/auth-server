@@ -1,6 +1,6 @@
 # Authentication & OAuth Server
 
-This project is a Node.js-based authentication server that provides user **registration**, **login**, and **OAuth 2.0 provider** functionality. It allows clients to authenticate users locally via username/password and supports OAuth authorization flows to enable third-party applications to securely access user data.
+This project is a Node.js-based authentication server that provides user **registration**, **login**, and **OAuth 2.0 provider** functionality. It allows clients to authenticate users via username/password and supports OAuth authorization flows to enable third-party applications to securely access user data.
 
 ---
 
@@ -53,7 +53,7 @@ Database: Stores user information, OAuth client data, tokens, and other metadata
 
 OAuth Client App: External applications that use OAuth flows to gain access to user data with proper authorization.
 
-Technologies Used
+# Technologies Used
 Node.js
 
 Express.js
@@ -64,9 +64,7 @@ bcrypt for password hashing
 
 jsonwebtoken for token creation and verification
 
-OAuth2orize (or custom OAuth2 server implementation)
-
-MongoDB / PostgreSQL / any database (your choice)
+MongoDB
 
 Getting Started
 Prerequisites
@@ -74,23 +72,14 @@ Node.js >= 14.x
 
 npm or yarn
 
-MongoDB / PostgreSQL (or other configured database)
+MongoDB
 
 Installation
-git clone https://github.com/yourusername/auth-oauth-server.git
-cd auth-oauth-server
+git clone https://github.com/kerliix/auth-server.git
+cd auth-server
 npm install
 Configuration
-Create a .env file in the root directory with the following environment variables:
-
-env
-PORT=4000
-DATABASE_URL=mongodb://localhost:27017/authdb
-JWT_SECRET=your_jwt_secret
-OAUTH_CLIENT_ID=your_oauth_client_id
-OAUTH_CLIENT_SECRET=your_oauth_client_secret
-SESSION_SECRET=your_session_secret
-Modify the configuration as per your environment and secrets.
+Create a .env file in the root directory with the variables from .env.example environment variables:
 
 Running the Server
 
@@ -132,7 +121,7 @@ License
 This project is licensed under the MIT License.
 
 Contact
-For questions or support, please contact [your.email@example.com].
+For questions or support, please contact [mahmoodkaliika810@gmail.com.com].
 
 
 

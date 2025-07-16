@@ -22,6 +22,43 @@ export const getProfile = async (req, res) => {
   req.session.success = null;
 };
 
+// New controller to render Edit Profile page
+export const getEditProfile = async (req, res) => {
+  const user = await User.findById(req.session.userId);
+  if (!user) return res.redirect('/auth/login');
+  res.render('user/edit-profile', {
+    title: 'Edit Profile',
+    user,
+    error: null,
+    success: null,
+    session: req.session
+  });
+};
+
+export const getChangeProfilePic = async (req, res) => {
+  const user = await User.findById(req.session.userId);
+  if (!user) return res.redirect('/auth/login');
+
+  res.render('user/change-profile-pic', {
+    title: 'Change Profile Picture',
+    user,
+    error: null,
+    success: null,
+    session: req.session
+  });
+};
+
+export const getAccountSettings = async (req, res) => {
+  const user = await User.findById(req.session.userId);
+  if (!user) return res.redirect('/auth/login');
+  res.render('account/settings', {
+    title: 'Account Settings',
+    user,
+    error: null,
+    success: null
+  });
+};
+
 export const changePassword = async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   const user = await User.findById(req.session.userId);

@@ -1,5 +1,3 @@
-// routes/userRoutes.js
-
 import express from 'express';
 import path from 'path';
 import multer from 'multer';
@@ -8,6 +6,9 @@ import { fileURLToPath } from 'url';
 import {
   getDashboard,
   getProfile,
+  getChangeProfilePic,
+  getEditProfile,
+  getAccountSettings,
   changePassword,
   changeEmail,
   verifyNewEmail,
@@ -19,14 +20,12 @@ import { requireAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// To resolve __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Configure multer storage
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, path.join(__dirname, '../public/uploads')); // Ensure this folder exists
+    cb(null, path.join(__dirname, '../public/uploads'));
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -37,9 +36,11 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-// Routes
 router.get('/dashboard', requireAuth, getDashboard);
 router.get('/profile', requireAuth, getProfile);
+router.get('/change-profile-pic', getChangeProfilePic);
+router.get('/edit-profile', requireAuth, getEditProfile);
+router.get('/account/settings', requireAuth, getAccountSettings);
 router.post('/change-password', requireAuth, changePassword);
 router.post('/change-email', requireAuth, changeEmail);
 router.post('/verify-new-email', requireAuth, verifyNewEmail);

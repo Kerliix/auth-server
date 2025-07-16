@@ -9,7 +9,7 @@ const hashPassword = async (password) => await bcrypt.hash(password, 12);
 
 // Step 1: Email, Username, Password
 export const getRegisterStep1 = (req, res) => {
-  res.render('auth/register-step1', {
+  res.render('auth/register', {
     title: 'Register',
     error: null,
     success: null,
@@ -22,7 +22,7 @@ export const postRegisterStep1 = async (req, res) => {
   try {
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
-      return res.render('auth/register-step1', {
+      return res.render('auth/register', {
         error: 'Email or Username already exists',
         title: 'Register',
         success: null,
@@ -82,7 +82,7 @@ export const postVerifyEmail = (req, res) => {
 
 // Step 3: Name, DOB, Sex
 export const getRegisterDetails = (req, res) => {
-  res.render('auth/register-step2', {
+  res.render('auth/basic-profile', {
     title: 'Your Details',
     error: null,
     success: null,
@@ -112,7 +112,7 @@ export const postRegisterDetails = (req, res) => {
 
 // Step 4: Phone (optional)
 export const getPhoneStep = (req, res) => {
-  res.render('auth/register-step3', {
+  res.render('auth/phone-number', {
     title: 'Add Phone',
     error: null,
     success: null,
@@ -141,7 +141,7 @@ export const postPhoneStep = (req, res) => {
 // Step 5: Profile pic (optional)
 export const getProfilePicStep = (req, res) => {
   const tempUser = req.session.tempUser || {};
-  res.render('auth/register-step4', {
+  res.render('auth/add-profile-pic', {
     title: 'Profile Picture',
     error: null,
     success: null,
@@ -175,7 +175,7 @@ export const postProfilePicStep = async (req, res) => {
     res.redirect('/user/dashboard');
   } catch (err) {
     logger.error('Error in postProfilePicStep (saving user):', err);
-    res.status(500).render('auth/register-step4', {
+    res.status(500).render('auth/add-profile-pic', {
       title: 'Profile Picture',
       error: 'Error saving user',
       success: null,
