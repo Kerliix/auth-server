@@ -1,0 +1,51 @@
+<% layout('layouts/user') -%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= title %></title>
+</head>
+<body>
+  <h1>Security Settings</h1>
+  <p>Welcome, <%= user.firstName %>! Here you can manage your security settings.</p>
+
+  <% if (success) { %>
+    <div style="color: green;"><%= success %></div>
+  <% } %>
+  <% if (error) { %>
+    <div style="color: red;"><%= error %></div>
+  <% } %>
+
+  <h2>MFA Settings</h2>
+
+  <form action="/user/security/mfa" method="POST">
+    <label>
+      Enable MFA:
+      <input type="checkbox" name="enabled" <%= mfa?.isEnabled ? 'checked' : '' %> />
+    </label>
+    <br />
+
+    <label for="method">Select MFA Method:</label>
+    <select name="method" id="method">
+      <option value="">-- Choose Method --</option>
+      <option value="TOTP" <%= mfa?.method === 'TOTP' ? 'selected' : '' %>>Authenticator App (TOTP)</option>
+      <option value="SMS" <%= mfa?.method === 'SMS' ? 'selected' : '' %>>SMS</option>
+      <option value="EMAIL" <%= mfa?.method === 'EMAIL' ? 'selected' : '' %>>Email</option>
+    </select>
+    <br />
+
+    <div id="phone-input" style="<%= mfa?.method === 'SMS' ? '' : 'display:none;' %>">
+      <label for="phoneNumber">Phone Number (for SMS):</label>
+      <input type="text" name="phoneNumber" value="<%= mfa?.phoneNumber || '' %>" />
+    </div>
+
+    <button type="submit">Save MFA Settings</button>
+  </form>
+
+  <script>
+    document.getElementById('method').addEventListener('change', function () {
+      document.getElementById('phone-input').style.display = this.value === 'SMS' ? '' : 'none';
+    });
+  </script>
+</body>
+</html>

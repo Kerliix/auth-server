@@ -1,3 +1,16 @@
-<% layout('layouts/user') -%>
+<% layout('layouts/user') %>
+
 <h2>Welcome, <%= user.firstName || user.username %>!</h2>
-<p>This is your dashboard.</p>
+<p>
+<% if (lastLoginTime) { %>
+  <p>
+    Last login: <strong><%= lastLoginTime.toUTCString() %></strong>
+    <% if (lastLoginLocation) { %>
+      from <%= lastLoginLocation %>
+    <% } %>
+    <% if (lastLoginDevice) { %>
+      using <%= lastLoginDevice %>
+    <% } %>
+  </p>
+<% } %>
+</p>

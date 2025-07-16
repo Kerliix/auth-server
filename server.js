@@ -83,10 +83,10 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
-app.use('/auth', oauthRoutes);
+app.use('/oauth', oauthRoutes);
 app.use('/admin', adminRoutes);
 
-app.get('/', (req, res) => res.redirect('/auth/login'));
+// app.get('/', (req, res) => res.redirect('/auth/login'));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

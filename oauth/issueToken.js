@@ -1,5 +1,9 @@
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import User from '../models/User.js';
+import OAuthClient from '../models/OAuthClient.js';
 import AccessToken from '../models/AccessToken.js';
+import AuthorizationCode from '../models/AuthorizationCode.js';
 
 export const issueToken = async (req, res) => {
   const { grant_type } = req.body;

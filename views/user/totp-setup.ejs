@@ -1,0 +1,16 @@
+<% layout('layouts/user') -%>
+<h1>Set Up Authenticator App</h1>
+
+<p>Scan the QR code below with your TOTP app (Google Authenticator, Authy, etc.)</p>
+
+<% if (error) { %>
+  <p style="color: red;"><%= error %></p>
+<% } %>
+
+<img src="<%= qrImageUrl %>" alt="QR Code for TOTP" />
+<p>Or manually enter this secret: <strong><%= secret %></strong></p>
+
+<form action="/user/security/totp-setup" method="POST">
+  <input type="text" name="token" placeholder="Enter 6-digit code" required />
+  <button type="submit">Verify and Enable TOTP</button>
+</form>

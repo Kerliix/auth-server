@@ -28,6 +28,19 @@ const userSchema = new mongoose.Schema({
   emailVerificationCode: String,
   emailVerificationExpires: Date,
 
+  lastLogin: Date,
+
+  mfa: {
+  isEnabled: { type: Boolean, default: false },
+  method: { type: String, enum: ['TOTP', 'SMS', 'EMAIL'], default: null },
+  totpSecret: { type: String },
+  phoneNumber: { type: String },
+  emailOTP: { type: String },
+  emailOTPExpires: { type: Date },
+  smsOTP: { type: String },
+  smsOTPExpires: { type: Date }
+  },
+  
   // Personal details
   firstName: String,
   lastName: String,
