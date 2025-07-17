@@ -1,5 +1,5 @@
-import connectDB from '../../config/db.js';
-import Admin from '../../models/Admin.js';
+import connectDB from '../config/db.js';
+import Admin from '../models/Admin.js';
 import dotenv from 'dotenv';
 import logger from '../config/logger.js';
 

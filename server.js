@@ -3,13 +3,16 @@ import mongoose from 'mongoose';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+import cors from 'cors'
 import path from 'path';
 import { fileURLToPath } from 'url';
 import engine from 'ejs-mate';
+import MongoStore from 'connect-mongo';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './swagger/swaggerConfig.js';
 import { flashMiddleware } from './middleware/flash.js';
 import rateLimit from 'express-rate-limit';
+import connectDB from './config/db.js';
 import logger from './config/logger.js';
 
 import authRoutes from './routes/authRoutes.js';
@@ -21,16 +24,20 @@ import securityRoutes from './routes/securityRoutes.js';
 
 import User from './models/User.js';
 
-// Import connect-mongo
-import MongoStore from 'connect-mongo';
-
 dotenv.config();
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+connectDB();
+
 const PORT = process.env.PORT || 3000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
+
+app.use(cors({
+  origin: 'http://localhost:3001',
+  credentials: true
+}));
 
 // Middleware
 app.use(cookieParser());
@@ -44,12 +51,12 @@ app.use(
     store: MongoStore.create({
       mongoUrl: process.env.MONGO_URI,
       collectionName: 'sessions',
-      ttl: 14 * 24 * 60 * 60, // Session expiration: 14 days (optional)
+      ttl: 14 * 24 * 60 * 60,
     }),
     cookie: {
-      secure: NODE_ENV === 'production', // only send cookie over https in production
+      secure: NODE_ENV === 'production',
       httpOnly: true,
-      maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+      maxAge: 14 * 24 * 60 * 60 * 1000,
       sameSite: 'lax',
     },
   })

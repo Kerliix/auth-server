@@ -4,11 +4,12 @@ import {verifyAdmin, isSuperAdmin } from '../middleware/verifyAdmin.js';
 
 import { adminSignIn } from '../admin/adminAuthController.js';
 import { getAdminMe , getAdminProfile, updateAdminProfile, uploadProfilePic } from '../admin/admin.js';
-import { getAllAccounts, getAccountById,} from '../admin/Accounts.js';
+import { getAllAccounts, getAccountById,} from '../admin/accounts.js';
 import { getAllClients, getClientById } from '../admin/clients.js';
 import { getAllAdmins, getAdminById } from '../admin/admins.js';
 import { getAllLogs, getLogById } from '../admin/logs.js';
 import { getAllOrganizations, getOrganizationById } from '../admin/organizations.js';
+import { getDashboardCharts, getRecentLogs } from '../admin/dashboard.js';
 
 const router = express.Router();
 
@@ -24,6 +25,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post('/signin', adminSignIn);
+router.get('/dashboard/charts', verifyAdmin, getDashboardCharts);
+router.get('/logs/recent', verifyAdmin, getRecentLogs);
 router.get('/accounts', verifyAdmin, getAllAccounts);
 router.get('/accounts/:id', verifyAdmin, getAccountById);
 router.get('/clients', verifyAdmin, getAllClients);

@@ -25,11 +25,11 @@ export const adminSignIn = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    // logger.info(`Admin signin successful for email: ${email}`);
+    //logger.info(`Admin signin successful for email: ${email}`);
 
     res.json({ token, admin: { name: admin.name, email: admin.email, role: admin.role } });
   } catch (error) {
-    // logger.error(`Admin signin error: ${error.message}`, { error });
+    logger.error(`Admin signin error: ${error.message}`, { error });
     res.status(500).json({ message: 'Server error' });
   }
 };
