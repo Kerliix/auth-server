@@ -21,6 +21,9 @@ import securityRoutes from './routes/securityRoutes.js';
 
 import User from './models/User.js';
 
+// Import connect-mongo
+import MongoStore from 'connect-mongo';
+
 dotenv.config();
 
 const app = express();
@@ -32,11 +35,25 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 // Middleware
 app.use(cookieParser());
 
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'secret',
-  resave: false,
-  saveUninitialized: false
-}));
+// Use connect-mongo for session store
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'secret',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: process.env.MONGO_URI,
+      collectionName: 'sessions',
+      ttl: 14 * 24 * 60 * 60, // Session expiration: 14 days (optional)
+    }),
+    cookie: {
+      secure: NODE_ENV === 'production', // only send cookie over https in production
+      httpOnly: true,
+      maxAge: 14 * 24 * 60 * 60 * 1000, // 14 days
+      sameSite: 'lax',
+    },
+  })
+);
 
 app.use(flashMiddleware);
 
@@ -97,13 +114,10 @@ mongoose.connect(process.env.MONGO_URI)
     logger.info('MongoDB connected');
 
     app.listen(PORT, () => {
-      let url;
-      if (NODE_ENV === 'production') {
-        const domain = process.env.DOMAIN || `localhost:${PORT}`;
-        url = `https://${domain}`;
-      } else {
-        url = `http://localhost:${PORT}`;
-      }
+      const domain = process.env.DOMAIN || process.env.RENDER_EXTERNAL_URL;
+      const protocol = NODE_ENV === 'production' ? 'https' : 'http';
+      const finalDomain = domain || `localhost:${PORT}`;
+      const url = `${protocol}://${finalDomain}`;
 
       logger.info(`Server running at ${url}`);
     });
