@@ -9,6 +9,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
 
   <style>
+    :root {
+      --primary-color: #6A00FA;
+      --hover-color: #00E3C2;
+      --active-bg: rgba(255, 255, 255, 0.15);
+    }
+
     body {
       margin: 0;
       font-family: 'Inter', sans-serif;
@@ -21,7 +27,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 0.5rem 1rem;
-      background-color: #007BFF; /* Blue */
+      background-color: var(--primary-color);
       color: #fff;
       position: relative;
     }
@@ -44,6 +50,11 @@
     .header-right {
       flex: 1;
       justify-content: flex-end;
+    }
+
+    .logo {
+      height: 40px;
+      object-fit: contain;
     }
 
     .menu-toggle {
@@ -85,10 +96,10 @@
       position: absolute;
       top: 100%;
       left: 0;
-      background: #007BFF;
+      background: var(--primary-color);
       width: 100%;
       flex-direction: column;
-      border-top: 1px solid #0056b3;
+      border-top: 1px solid #4e00bd;
       z-index: 1000;
     }
 
@@ -100,7 +111,18 @@
       padding: 0.75rem 1rem;
       text-decoration: none;
       color: white;
-      border-bottom: 1px solid #0056b3;
+      border-bottom: 1px solid #4e00bd;
+      transition: background-color 0.2s ease;
+    }
+
+    .mobile-nav a:hover {
+      background-color: var(--hover-color);
+      color: #fff;
+    }
+
+    .mobile-nav a.active {
+      background-color: var(--active-bg);
+      font-weight: 700;
     }
 
     .container {
@@ -110,9 +132,9 @@
 
     .sidebar {
       width: 280px;
-      background-color: #007BFF;
+      background-color: var(--primary-color);
       padding: 1rem;
-      border-right: 1px solid #0056b3;
+      border-right: 1px solid #4e00bd;
       color: white;
     }
 
@@ -130,12 +152,42 @@
       text-decoration: none;
       color: white;
       font-weight: 500;
+      display: block;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      transition: background-color 0.2s ease;
+    }
+
+    .sidebar a:hover {
+      background-color: var(--hover-color);
+      color: #fff;
+    }
+
+    .sidebar a.active {
+      background-color: var(--active-bg);
+      font-weight: 700;
+      border-left: 4px solid var(--hover-color);
     }
 
     .main-content {
       flex: 1;
       padding: 1rem;
       overflow-y: auto;
+    }
+
+    /* Button Style */
+    .btn, button {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      color: #fff;
+      font-weight: 600;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .btn:hover, button:hover {
+      background-color: var(--hover-color);
+      border-color: var(--hover-color);
+      color: #fff;
     }
 
     /* Responsive behavior */
@@ -167,7 +219,7 @@
 
     <!-- Center: Title -->
     <div class="header-center">
-      <h1>My App</h1>
+      <img class="logo" src="https://raw.githubusercontent.com/Kerliix/.github/main/company/logo.png" alt="Kerliix Logo" />
     </div>
 
     <!-- Right: Avatar -->
@@ -189,12 +241,12 @@
 
     <!-- Mobile nav menu -->
     <nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Mobile menu">
-      <a href="/user/dashboard">Dashboard</a>
-      <a href="/user/profile">Profile</a>
-      <a href="/user/my-apps">My Apps</a>
-      <a href="/user/devices">Devices</a>
-      <a href="/security">Security</a>
-      <a href="/account/settings">Settings</a>
+      <a href="/user/dashboard" class="<%= currentPath === '/user/dashboard' ? 'active' : '' %>">Dashboard</a>
+      <a href="/user/profile" class="<%= currentPath === '/user/profile' ? 'active' : '' %>">Profile</a>
+      <a href="/user/my-apps" class="<%= currentPath === '/user/my-apps' ? 'active' : '' %>">My Apps</a>
+      <a href="/user/devices" class="<%= currentPath === '/user/devices' ? 'active' : '' %>">Devices</a>
+      <a href="/security" class="<%= currentPath === '/security' ? 'active' : '' %>">Security</a>
+      <a href="/account/settings" class="<%= currentPath === '/account/settings' ? 'active' : '' %>">Settings</a>
       <a href="/auth/logout">Logout</a>
     </nav>
   </header>
@@ -202,12 +254,12 @@
   <div class="container">
     <aside class="sidebar">
       <ul>
-        <li><a href="/user/dashboard">Dashboard</a></li>
-        <li><a href="/user/profile">Profile</a></li>
-        <li><a href="/user/my-apps">My Apps</a></li>
-        <li><a href="/user/devices">Devices</a></li>
-        <li><a href="/security">Security</a></li>
-        <li><a href="/account/settings">Settings</a></li>
+        <li><a href="/user/dashboard" class="<%= currentPath === '/user/dashboard' ? 'active' : '' %>">Dashboard</a></li>
+        <li><a href="/user/profile" class="<%= currentPath === '/user/profile' ? 'active' : '' %>">Profile</a></li>
+        <li><a href="/user/my-apps" class="<%= currentPath === '/user/my-apps' ? 'active' : '' %>">My Apps</a></li>
+        <li><a href="/user/devices" class="<%= currentPath === '/user/devices' ? 'active' : '' %>">Devices</a></li>
+        <li><a href="/security" class="<%= currentPath === '/security' ? 'active' : '' %>">Security</a></li>
+        <li><a href="/account/settings" class="<%= currentPath === '/account/settings' ? 'active' : '' %>">Settings</a></li>
         <li><a href="/auth/logout">Logout</a></li>
       </ul>
     </aside>

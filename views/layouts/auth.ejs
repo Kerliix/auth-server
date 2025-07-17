@@ -28,10 +28,10 @@
       padding: 2.5rem;
       max-width: 600px;
       width: 100%;
-      min-height: 450px; /* Uniform height */
+      min-height: 450px;
       display: flex;
       flex-direction: column;
-      justify-content: center; /* Vertical centering */
+      justify-content: center;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
@@ -43,8 +43,23 @@
     @media (max-width: 576px) {
       .auth-card {
         padding: 2rem 1.5rem;
-        min-height: 400px; /* Slightly smaller for small screens */
+        min-height: 400px;
       }
+    }
+
+    /* Custom Button Styling */
+    .btn, button {
+      background-color: #6A00FA;
+      border-color: #6A00FA;
+      color: #fff;
+      font-weight: 600;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .btn:hover, button:hover {
+      background-color: #00E3C2;
+      border-color: #00E3C2;
+      color: #fff;
     }
   </style>
 </head>

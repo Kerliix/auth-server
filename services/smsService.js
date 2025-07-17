@@ -11,7 +11,7 @@ const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
   try {
     const account = await client.api.accounts(process.env.TWILIO_SID).fetch();
     if (account.status === 'active') {
-      logger.info('SMS server is ready to send messages (Twilio verified)');
+      logger.info('SMS server is ready to send messages');
     } else {
       logger.warn(`Twilio account status is '${account.status}'`);
     }

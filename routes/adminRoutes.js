@@ -1,26 +1,14 @@
 import express from 'express';
 import multer from 'multer';
+import {verifyAdmin, isSuperAdmin } from '../middleware/verifyAdmin.js';
 
 import { adminSignIn } from '../admin/adminAuthController.js';
-import { getChartStats } from '../admin/adminDashboardController.js';
-import {
-  verifyAdmin,
-  isSuperAdmin
-} from '../middleware/verifyAdmin.js';
-
-import {
-  getAdminMe ,
-  getAdminProfile,
-  updateAdminProfile,
-  uploadProfilePic
-} from '../admin/admin.js';
-
-import {
-  getAllUsers,
-  getAllClients,
-  getAllLogs,
-  getAllAdmins
-} from '../admin/adminPanelController.js';
+import { getAdminMe , getAdminProfile, updateAdminProfile, uploadProfilePic } from '../admin/admin.js';
+import { getAllAccounts, getAccountById,} from '../admin/Accounts.js';
+import { getAllClients, getClientById } from '../admin/clients.js';
+import { getAllAdmins, getAdminById } from '../admin/admins.js';
+import { getAllLogs, getLogById } from '../admin/logs.js';
+import { getAllOrganizations, getOrganizationById } from '../admin/organizations.js';
 
 const router = express.Router();
 
@@ -36,14 +24,21 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 router.post('/signin', adminSignIn);
-router.get('/dashboard/charts', verifyAdmin, getChartStats);
-router.get('/accounts', verifyAdmin, getAllUsers);
+router.get('/accounts', verifyAdmin, getAllAccounts);
+router.get('/accounts/:id', verifyAdmin, getAccountById);
 router.get('/clients', verifyAdmin, getAllClients);
+router.get('/clients/:id', verifyAdmin, getClientById);
+router.get('/admins', verifyAdmin, getAllAdmins);
+router.get('/admins/:id', verifyAdmin, getAdminById);
 router.get('/logs', verifyAdmin, getAllLogs);
-router.get('/admins', verifyAdmin, isSuperAdmin, getAllAdmins);
-router.get('/profile', verifyAdmin, getAdminProfile);
+router.get('/logs/:id', verifyAdmin, getLogById);
+router.get('/organizations', verifyAdmin, getAllOrganizations);
+router.get('/organizations/:id', verifyAdmin, getOrganizationById);
+
 router.get('/me', verifyAdmin, getAdminMe );
+router.get('/profile', verifyAdmin, getAdminProfile);
 router.put('/profile', verifyAdmin, updateAdminProfile);
 router.post('/profile/pic', verifyAdmin, upload.single('profilePic'), uploadProfilePic);
 
 export default router;
+
