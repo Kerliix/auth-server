@@ -14,6 +14,8 @@ import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import oauthRoutes from './routes/oauthRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
+import accountRoutes from './routes/accountRoutes.js';
+import securityRoutes from './routes/securityRoutes.js';
 
 import User from './models/User.js';
 
@@ -85,8 +87,8 @@ app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 app.use('/oauth', oauthRoutes);
 app.use('/admin', adminRoutes);
-
-// app.get('/', (req, res) => res.redirect('/auth/login'));
+app.use('/account', accountRoutes);
+app.use('/security', securityRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

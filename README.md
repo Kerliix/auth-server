@@ -36,7 +36,7 @@ This project is a Node.js-based authentication server that provides user **regis
    |                  |           | OAuth2orize        |          | (bcrypt)         |
    +------------------+           +--------------------+          +------------------+
 
-Architecture Explanation
+## Architecture Explanation
 Client Application: This is any frontend or third-party application (web app, mobile app, or external service) that needs user authentication or wants to act as an OAuth client to access user data.
 
 Authentication Server: The core Node.js server built with Express. It handles:
@@ -53,115 +53,58 @@ Database: Stores user information, OAuth client data, tokens, and other metadata
 
 OAuth Client App: External applications that use OAuth flows to gain access to user data with proper authorization.
 
-# Technologies Used
-Node.js
+---
 
+## Protocols Supported
+OAuth 2.0 Authorization Code Grant (with PKCE)
+
+OAuth 2.0 Refresh Token Grant
+
+OpenID Connect Core (UserInfo endpoint)
+
+OAuth 2.0 Token Revocation (RFC 7009)
+
+---
+
+## External Dependencies
+Node.js (v18+ recommended)
 Express.js
+MongoDB (via Mongoose)
+jsonwebtoken
+bcrypt
+express-rate-limit
+express-session
+nodemailer
+express-validator
 
-Passport.js (local and OAuth strategies)
+---
 
-bcrypt for password hashing
+## Project Structure
 
-jsonwebtoken for token creation and verification
+```
+public/
+├── favicon.ico
+src/
+├── components/       # Navbar and Footer
+├── pages/            # Individual pages
+├── App.jsx           # Main app with routing
+├── main.jsx          # Entry point
+├── index.css         # Tailwind setup
+```
+---
 
-MongoDB
+## Installation
 
-Getting Started
-Prerequisites
-Node.js >= 14.x
-
-npm or yarn
-
-MongoDB
-
-Installation
-git clone https://github.com/kerliix/auth-server.git
-cd auth-server
+```bash
+git clone https://github.com/kerliix/Kerliix-website.git
+cd Kerliix-website
 npm install
-Configuration
-Create a .env file in the root directory with the variables from .env.example environment variables:
+npm run dev
+```
 
-Running the Server
+---
 
-npm start
-The server will start on http://localhost:4000
-
-API Endpoints
-Authentication
-Method	Endpoint	Description
-POST	/api/register	Register a new user
-POST	/api/login	Login with username/password
-POST	/api/logout	Logout the current session
-
-OAuth 2.0 Provider
-Method	Endpoint	Description
-GET	/oauth/authorize	OAuth authorization endpoint
-POST	/oauth/token	Token endpoint for issuing tokens
-POST	/oauth/revoke	Token revocation endpoint
-
-Usage Example
-Register a User
-
-curl -X POST http://localhost:4000/api/register \
- -H "Content-Type: application/json" \
- -d '{"username": "johndoe", "password": "yourpassword"}'
-Login a User
-
-curl -X POST http://localhost:4000/api/login \
- -H "Content-Type: application/json" \
- -d '{"username": "johndoe", "password": "yourpassword"}'
-OAuth Authorization
-Direct users to:
-
-GET http://localhost:4000/oauth/authorize?response_type=code&client_id=YOUR_CLIENT_ID&redirect_uri=YOUR_REDIRECT_URI&scope=read
-Contributing
-Contributions are welcome! Please open issues or pull requests for bug fixes and features.
-
-License
-This project is licensed under the MIT License.
-
-Contact
-For questions or support, please contact [mahmoodkaliika810@gmail.com.com].
-
-
-
-
-# Internal OAuth 2.0 and OpenID Connect Server
-
-## High-Level Architecture
-
-```plaintext
-+-----------------+        +------------------+        +-----------------+
-|                 |        |                  |        |                 |
-|   Client Apps   +------->+  OAuth Server    +------->+  MongoDB        |
-|  (Web, Mobile)  |        |  (Node.js/Express)|       | (User, Tokens)  |
-|                 |        |                  |        |                 |
-+-----------------+        +------------------+        +-----------------+
-
-Flows:
-- Registration (multi-step with email verification)
-- Authorization (OAuth 2.0 with PKCE)
-- Token issuance and refresh
-- UserInfo (OpenID Connect)
-- Token revocation
-Explanation
-This server acts as an OAuth 2.0 provider with OpenID Connect support and includes:
-
-Multi-step user registration and email verification.
-
-Login with username/email and password.
-
-OAuth 2.0 authorization code flow with PKCE support.
-
-Refresh token support for long-lived sessions.
-
-Token revocation endpoint for enhanced security.
-
-UserInfo endpoint returning OpenID Connect claims.
-
-Profile and dashboard views for authenticated users.
-
-Roadmap
+# Roadmap
 Implement OpenID Connect logout (RP-Initiated logout).
 
 Enhance user interface for consent and profile management.
@@ -172,35 +115,9 @@ Support additional OAuth 2.0 grants (e.g., client credentials).
 
 Integrate intrusion detection and improved rate limiting.
 
-Protocols Supported
-OAuth 2.0 Authorization Code Grant (with PKCE)
+---
 
-OAuth 2.0 Refresh Token Grant
-
-OpenID Connect Core (UserInfo endpoint)
-
-OAuth 2.0 Token Revocation (RFC 7009)
-
-Dependencies
-Node.js (v18+ recommended)
-
-Express.js
-
-MongoDB (via Mongoose)
-
-jsonwebtoken
-
-bcrypt
-
-express-rate-limit
-
-express-session
-
-nodemailer
-
-express-validator
-
-Acknowledgement and Special Thanks
+# Acknowledgement and Special Thanks
 Inspired by the official OAuth 2.0 and OpenID Connect specifications.
 
 Thanks to the Node.js and Express.js communities for their outstanding libraries and tools.
@@ -208,3 +125,11 @@ Thanks to the Node.js and Express.js communities for their outstanding libraries
 Appreciation to open source contributors whose libraries made development efficient and secure.
 
 Special thanks to our internal team for feedback and testing.
+
+---
+
+License
+This project is licensed under the MIT License.
+
+Contact
+For questions or support, please contact [mahmoodkaliika810@gmail.com.com].

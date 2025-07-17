@@ -11,7 +11,7 @@ import {
 import {
   getLogin, postLogin, getMfa, postMfa,
   logout
-} from '../controllers/authController.js';
+} from '../controllers/loginController.js';
 
 const router = express.Router();
 const upload = multer({ dest: 'public/uploads' });

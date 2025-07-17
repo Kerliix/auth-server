@@ -1,4 +1,3 @@
-// models/User.js
 import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
@@ -19,6 +18,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
+  role: { type: String, enum: ['user', 'developer'], default: 'user' },
 
   // Email verification
   isEmailVerified: {
@@ -73,6 +74,12 @@ const userSchema = new mongoose.Schema({
       expiresIn: Number,
       scope: String,
     }],
+  },
+
+  //deactivate account
+  deactivated: {
+  type: Boolean,
+  default: false
   },
 
   createdAt: {

@@ -165,3 +165,149 @@ export const sendLoginNotificationEmail = async (to, { ip, location, device }) =
     throw err;
   }
 };
+
+export const sendLogoutEmail = async (to, { ip, location, device, time }) => {
+  const html = buildEmailHTML('You Logged Out', `
+    <p>Hello,</p>
+    <p>You have successfully logged out from your account.</p>
+    <ul style="padding-left: 20px;">
+      <li><strong>Time:</strong> ${time} (UTC)</li>
+      <li><strong>Location:</strong> ${location || 'Unknown'}</li>
+      <li><strong>IP Address:</strong> ${ip || 'N/A'}</li>
+      <li><strong>Device:</strong> ${device || 'Unknown'}</li>
+    </ul>
+    <p>If this wasn't you, we recommend changing your password immediately.</p>
+  `);
+
+  const mailOptions = {
+    from: `"Kerliix" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: 'You Logged Out from Kerliix',
+    text: `Logout detected from IP: ${ip}, Location: ${location}, Device: ${device}. Time: ${time} (UTC)`,
+    html,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    logger.info('Logout email sent to:', to, '| Message ID:', info.messageId);
+    return info;
+  } catch (err) {
+    logger.error('Failed to send logout email:', err);
+    throw err;
+  }
+};
+
+export const sendAutoLogoutEmail = async (to, { ip, location, device, browser, os, time }) => {
+  const html = buildEmailHTML('Session Auto Logged Out', `
+    <p>Hello,</p>
+    <p>One of your active sessions was automatically logged out due to inactivity for ${AUTO_LOGOUT_DAYS} days.</p>
+    <ul style="padding-left: 20px;">
+      <li><strong>Time:</strong> ${time} (UTC)</li>
+      <li><strong>Location:</strong> ${location || 'Unknown'}</li>
+      <li><strong>IP Address:</strong> ${ip || 'N/A'}</li>
+      <li><strong>Device:</strong> ${device || 'Unknown'}</li>
+      <li><strong>Browser:</strong> ${browser || 'Unknown'}</li>
+      <li><strong>OS:</strong> ${os || 'Unknown'}</li>
+    </ul>
+    <p>This is for your security. If you need to stay logged in longer, consider using "Remember Me" options if available.</p>
+  `);
+
+  const mailOptions = {
+    from: `"Kerliix" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: 'You Were Auto Logged Out',
+    text: `One of your sessions was auto-logged out due to inactivity.`,
+    html,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    logger.info('Auto logout email sent to:', to, '| Message ID:', info.messageId);
+    return info;
+  } catch (err) {
+    logger.error('Failed to send auto logout email:', err);
+    throw err;
+  }
+};
+
+export const sendUsernameChangedEmail = async (to, oldUsername, newUsername) => {
+  const html = buildEmailHTML('Username Changed', `
+    <p>Hello,</p>
+    <p>This is a confirmation that your Kerliix username has been updated.</p>
+    <ul style="padding-left: 20px;">
+      <li><strong>Previous Username:</strong> ${oldUsername}</li>
+      <li><strong>New Username:</strong> ${newUsername}</li>
+    </ul>
+    <p>If you did not make this change, please contact our support team immediately.</p>
+  `);
+
+  const mailOptions = {
+    from: `"Kerliix" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: 'Your Username Has Been Changed',
+    text: `Your username has been changed from "${oldUsername}" to "${newUsername}". If you didn't request this, contact support.`,
+    html,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    logger.info('Username change email sent to:', to, '| Message ID:', info.messageId);
+    return info;
+  } catch (err) {
+    logger.error('Failed to send username change email:', err);
+    throw err;
+  }
+};
+
+export const sendAccountDeactivatedEmail = async (to) => {
+  const html = buildEmailHTML('Account Deactivated', `
+    <p>Hello,</p>
+    <p>Your Kerliix account has been <strong>deactivated</strong>. This means you will no longer be able to log in or access your data.</p>
+    <p>If this was intentional, no further action is required. If you did not request this, please contact our support team immediately.</p>
+    <p style="margin-top: 30px;">Thanks,<br><strong>The Kerliix Team</strong></p>
+  `);
+
+  const mailOptions = {
+    from: `"Kerliix" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: 'Your Kerliix Account Has Been Deactivated',
+    text: `Your account has been deactivated. Contact support if this was not intended.`,
+    html,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    logger.info('Deactivation email sent to:', to, '| Message ID:', info.messageId);
+    return info;
+  } catch (err) {
+    logger.error('Failed to send deactivation email:', err);
+    throw err;
+  }
+};
+
+export const sendAccountDeletedEmail = async (to) => {
+  const html = buildEmailHTML('Account Deleted', `
+    <p>Hello,</p>
+    <p>We're writing to confirm that your Kerliix account has been <strong>permanently deleted</strong>.</p>
+    <p>All your personal information, login logs, and data have been removed from our system and cannot be recovered.</p>
+    <p>If this was not intended, please contact us immediately — although recovery may not be possible.</p>
+    <p style="margin-top: 30px;">Goodbye,<br><strong>The Kerliix Team</strong></p>
+  `);
+
+  const mailOptions = {
+    from: `"Kerliix" <${process.env.EMAIL_USER}>`,
+    to,
+    subject: 'Your Kerliix Account Has Been Deleted',
+    text: `Your account has been permanently deleted. This action cannot be undone.`,
+    html,
+  };
+
+  try {
+    const info = await transporter.sendMail(mailOptions);
+    logger.info('Account deletion email sent to:', to, '| Message ID:', info.messageId);
+    return info;
+  } catch (err) {
+    logger.error('Failed to send deletion email:', err);
+    throw err;
+  }
+};

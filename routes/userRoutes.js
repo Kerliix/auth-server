@@ -9,18 +9,12 @@ import {
   getProfile,
   getChangeProfilePic,
   getEditProfile,
-  getAccountSettings,
   changePassword,
   changeEmail,
   verifyNewEmail,
   updateProfile,
-  deleteAccount,
   getDevices,
-  getSecurity,
-  getMyApps,
-  updateMfaSettings,
-  getTotpSetup,
-  verifyTotpSetup
+  getMyApps
 } from '../controllers/userController.js';
 
 import { requireAuth } from '../middleware/auth.js';
@@ -47,17 +41,24 @@ router.get('/dashboard', requireAuth, ensureMfaVerified, getDashboard);
 router.get('/profile', requireAuth, ensureMfaVerified, getProfile);
 router.get('/change-profile-pic', getChangeProfilePic);
 router.get('/edit-profile', requireAuth, ensureMfaVerified, getEditProfile);
-router.get('/account/settings', requireAuth, ensureMfaVerified, getAccountSettings);
 router.post('/change-password', requireAuth, ensureMfaVerified, changePassword);
 router.post('/change-email', requireAuth, ensureMfaVerified, changeEmail);
 router.post('/verify-new-email', requireAuth, ensureMfaVerified, verifyNewEmail);
 router.post('/update-profile', requireAuth, ensureMfaVerified, upload.single('profilePic'), updateProfile);
-router.post('/delete', requireAuth, ensureMfaVerified, deleteAccount);
-router.get('/security', requireAuth, ensureMfaVerified, getSecurity);
-router.post('/security/mfa', requireAuth, ensureMfaVerified, updateMfaSettings);
-router.get('/security/totp-setup', requireAuth, ensureMfaVerified, getTotpSetup);
-router.post('/security/totp-setup', requireAuth, ensureMfaVerified, verifyTotpSetup);
 router.get('/devices', requireAuth, ensureMfaVerified, getDevices);
+router.post('/devices/logout/:sessionId', async (req, res) => {
+  const { sessionId } = req.params;
+  const userId = req.session.userId;
+
+  const log = await LoginLog.findOne({ userId, sessionId, isActive: true });
+  if (log) {
+    await LoginLog.updateOne({ _id: log._id }, { isActive: false });
+    // Optionally destroy session if you're storing them in DB
+  }
+
+  res.redirect('/user/devices');
+});
+
 router.get('/my-apps', requireAuth, ensureMfaVerified, getMyApps);
 
 export default router;

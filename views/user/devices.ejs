@@ -8,5 +8,21 @@
 <body>
   <h1>Devices</h1>
   <p>List and manage your connected devices here, <%= user.firstName %>.</p>
+  <ul>
+  <% devices.forEach(device => { %>
+    <li>
+      <strong><%= device.device %></strong> - 
+      <%= device.location %> - 
+      <%= new Date(device.time).toLocaleString() %> 
+      <% if (device.sessionId === currentSessionId) { %>
+        <span>(Current Session)</span>
+      <% } else { %>
+        <form action="/user/devices/logout/<%= device.sessionId %>" method="POST" style="display:inline;">
+          <button type="submit">Logout</button>
+        </form>
+      <% } %>
+    </li>
+  <% }); %>
+</ul>
 </body>
 </html>

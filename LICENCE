@@ -1,8 +1,87 @@
-# License
+Proprietary Software License Agreement
+Version: 1.0
+Copyright © 2025 Kerliix. All rights reserved.
 
-This software and its source code are the confidential and proprietary information of [Your Company Name].  
-It is intended solely for internal use within the company and may not be redistributed or disclosed externally without prior authorization.
+This Proprietary Software License Agreement (“Agreement”) is entered into by and between Kerliix ltd, a company registered in Uganda (“Licensor”), and applies solely to Kerliix ltd and its officially employed personnel (“Licensee”). This Agreement governs the use of the proprietary software developed by Kerliix (“Software”).
 
-Unauthorized copying, modification, or distribution is strictly prohibited.
+1. LICENSE SCOPE AND VERSIONING
+This license applies to Kerliix Software Version 1.0, including any updates or modifications unless a superseding license is issued by Kerliix. This Agreement is strictly limited to internal use by Kerliix ltd within its own organization.
 
-© [Your Company Name] All rights reserved.
+2. LICENSE GRANT
+Kerliix hereby grants the Licensee a non-transferable, non-exclusive, and limited license to use the Software solely for the internal business operations of Kerliix ltd. This license is:
+- Valid only for official employees of Kerliix ltd.
+- Limited to internal systems, infrastructure, and environments owned and operated by Kerliix ltd.
+- Subject to the terms and restrictions set forth in this Agreement.
+
+3. NO THIRD-PARTY RIGHTS
+This Agreement does not grant any rights to:
+- Contractors, affiliates, vendors, partners, subsidiaries, or any third-party individual or entity.
+- Any external parties outside Kerliix ltd.
+Only direct employees of Kerliix ltd are licensed to access, install, or interact with the Software. Use by any other individual or entity is strictly prohibited.
+
+4. RESTRICTIONS
+The Licensee shall not, without prior written consent from Kerliix:
+- Reverse engineer, decompile, disassemble, or attempt to discover the source code of the Software;
+- Modify, adapt, translate, or create derivative works based on the Software;
+- Redistribute, sublicense, lease, rent, or transfer any rights to the Software;
+- Use the Software to provide software-as-a-service, consulting, or commercial services to any third party;
+- Remove or alter any proprietary notices, watermarks, or labels;
+- Deploy or host the Software in public cloud services or external networks not controlled by Kerliix ltd.
+
+5. DIGITAL USE RESTRICTION
+The Software is licensed exclusively for use:
+- On-premises, or
+- In private cloud environments owned and operated solely by Kerliix ltd.
+Deployment to public-facing websites, shared servers, or third-party platforms is not permitted.
+
+6. NON-DISCLOSURE OF EXISTENCE
+The Licensee agrees not to:
+- Publicly mention, display, advertise, or disclose the existence, capabilities, or usage of the Software;
+- Demonstrate or discuss the Software with any third party without the prior written consent of Kerliix.
+
+7. OWNERSHIP
+The Software and all copies thereof remain the exclusive property of Kerliix ltd. This Agreement does not transfer any title, ownership, or intellectual property rights to the Licensee. All rights not explicitly granted herein are reserved by Kerliix.
+
+8. WARRANTY DISCLAIMER
+The Software is provided “AS IS” without warranty of any kind, express or implied. This includes, but is not limited to:
+- Warranties of merchantability,
+- Fitness for a particular purpose,
+- Non-infringement.
+Kerliix does not guarantee that the Software will meet Licensee’s requirements or be uninterrupted or error-free.
+
+9. LIMITATION OF LIABILITY
+In no event shall Kerliix be liable for any indirect, incidental, special, or consequential damages—including, but not limited to:
+- Loss of revenue or profits,
+- Business interruption,
+- Data loss or corruption—
+arising from the use or inability to use the Software, even if Kerliix was advised of the possibility of such damages.
+
+10. TERMINATION
+This license is effective until terminated. Kerliix may terminate this license at any time with written notice if the Licensee breaches any term of this Agreement.
+Upon termination:
+- All use of the Software must cease immediately,
+- All copies must be destroyed,
+- Licensee must certify destruction upon request.
+
+11. GOVERNING LAW
+This Agreement shall be governed by and construed in accordance with the laws of Uganda, without regard to its conflict of law principles.
+
+12. CONFIDENTIALITY
+The Licensee acknowledges that the Software and any related documentation contain confidential and proprietary information belonging to Kerliix ltd. The Licensee agrees not to:
+- Disclose, publish, or disseminate any part of the Software,
+- Share related documentation, code, or internal usage with any third party.
+
+13. ASSIGNMENT
+The Licensee may not assign, delegate, or transfer this Agreement, in whole or in part, without the prior written consent of Kerliix. Any attempted assignment without consent shall be null and void.
+
+14. ENTIRE AGREEMENT
+This document represents the entire agreement between Kerliix and the Licensee concerning the Software. It supersedes all prior or contemporaneous agreements, whether written or oral.
+
+15. CONTACT INFORMATION
+For inquiries or permissions regarding licensing:
+
+Kerliix Legal Department
+Email: legal@kerliix.com
+Address: Kampala, Uganda
+
+By using this Software, the Licensee acknowledges that they have read, understood, and agree to be bound by the terms of this Agreement.
