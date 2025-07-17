@@ -6,6 +6,8 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import engine from 'ejs-mate';
+import swaggerUi from 'swagger-ui-express';
+import swaggerSpec from './swagger/swaggerConfig.js';
 import { flashMiddleware } from './middleware/flash.js';
 import rateLimit from 'express-rate-limit';
 import logger from './config/logger.js';
@@ -47,11 +49,10 @@ export const tokenLimiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' },
 });
 
-// 🔽 Inject logged-in user into all views (EJS Mate layouts too)
 app.use(async (req, res, next) => {
   if (req.session.userId) {
     try {
-      const user = await User.findById(req.session.userId).lean(); // .lean() for performance
+      const user = await User.findById(req.session.userId).lean();
       res.locals.user = user;
     } catch (err) {
       logger.error('Error injecting user into views:', err);
@@ -89,6 +90,7 @@ app.use('/oauth', oauthRoutes);
 app.use('/admin', adminRoutes);
 app.use('/account', accountRoutes);
 app.use('/security', securityRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {

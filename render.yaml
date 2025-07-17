@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: kerliix-auth-server
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SESSION_SECRET
+        value: your-secret
+      - key: MONGO_URI
+        value: your-mongo-uri

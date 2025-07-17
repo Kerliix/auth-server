@@ -1,17 +1,33 @@
 # Security Policy
 
-## Reporting a Vulnerability
-
-This project is for internal use only. Please report any security vulnerabilities directly to the security team via internal channels.
-
 ## Supported Versions
 
-Currently, we support the latest stable release of the server. Security patches will be applied promptly.
+| Version | Supported          |
+|---------|--------------------|
+| 1.x     | Yes                |
+| < 1.0   | No                 |
 
-## Security Practices
+## Reporting a Vulnerability
 
-- Passwords are hashed with bcrypt.
-- JWTs are signed securely with a secret key.
-- HTTPS is required in production environments.
-- Rate limiting is applied to sensitive endpoints.
-- Refresh tokens and access tokens are stored securely.
+Kerliix takes security seriously. If you discover a vulnerability in this authentication system, please report it **privately** and **promptly**.
+
+### Contact
+
+Email: [mahmoodkaliika810@gmail.com](mailto:mahmoodkaliika810@gmail.com)
+
+Do **not** create a GitHub issue for security-related matters.
+
+### Responsible Disclosure Guidelines
+
+- Provide full details of the vulnerability
+- Include reproducible steps and any related exploit code
+- Allow time for us to patch before public disclosure
+
+## Security Best Practices We Follow
+
+- Passwords hashed with bcrypt
+- Rate limiting on all sensitive routes
+- Input validation and sanitization
+- Session management and token revocation
+- Role-based access control
+- Audit logging for login and sensitive events

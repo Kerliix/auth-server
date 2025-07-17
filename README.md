@@ -1,99 +1,120 @@
 # Authentication & OAuth Server
 
-This project is a Node.js-based authentication server that provides user **registration**, **login**, and **OAuth 2.0 provider** functionality. It allows clients to authenticate users via username/password and supports OAuth authorization flows to enable third-party applications to securely access user data.
+A production-ready Node.js-based authentication server offering robust **user registration**, **login**, and **OAuth 2.0 provider** functionality. This server enables clients and third-party applications to securely authenticate users and request access tokens for protected resources.
 
 ---
 
-## Features
+## 🚀 Features
 
-- **User Registration:** Create new user accounts with secure password hashing.
-- **User Login:** Authenticate existing users via local credentials.
-- **OAuth 2.0 Provider:** Implements OAuth 2.0 flows (Authorization Code, Implicit, etc.) to authorize third-party applications.
-- **JWT / Session Support:** Issue JSON Web Tokens (JWT) or manage sessions after authentication.
-- **Password Security:** Passwords are hashed securely using bcrypt.
-- **Token Revocation:** Support for token invalidation and refresh tokens.
-- **Role-based Access Control:** (Optional) Support for user roles and permissions.
-- **Extensible & Modular:** Easily extend with custom authentication strategies or OAuth scopes.
+- **User Registration** – Create new user accounts with secure password hashing.
+- **User Login** – Authenticate users via username/password.
+- **OAuth 2.0 Provider** – Implements standard flows (Authorization Code, PKCE, etc.).
+- **Session & JWT Support** – Offers session-based or token-based authentication.
+- **Token Revocation & Refresh** – Supports invalidation and renewal of access tokens.
+- **Password Security** – Uses bcrypt for secure password hashing.
+- **Role-Based Access Control** – Optional permissions and roles system.
+- **Extensible** – Easily integrate custom strategies, scopes, and flows.
 
 ---
 
-## High-Level Architecture Diagram
+## 🧠 High-Level Architecture Diagram
 
 ```plaintext
 +-----------------------+        +-----------------------+        +--------------------+
 |                       |        |                       |        |                    |
-|    Client Application  +------->+  Authentication Server +------->+   Database         |
-|  (Web/Mobile/Third-    |        |  (Node.js + Express)  |        | (MongoDB/Postgres) |
-|  party apps)           |        |                       |        |                    |
-+-----------+-----------+        +-----------+-----------+        +---------+----------+
-            |                                |                              |
-            | OAuth 2.0 Authorization        | User Credentials             | User Data
-            | / Login / Register             | Validation                   | Storage
-            |                                |                              |
-            v                                v                              v
-   +------------------+           +--------------------+          +------------------+
-   | OAuth Client App  |           | Passport.js /      |          | Password Hashing |
-   |                  |           | OAuth2orize        |          | (bcrypt)         |
-   +------------------+           +--------------------+          +------------------+
-
-## Architecture Explanation
-Client Application: This is any frontend or third-party application (web app, mobile app, or external service) that needs user authentication or wants to act as an OAuth client to access user data.
-
-Authentication Server: The core Node.js server built with Express. It handles:
-
-User Registration & Login: Receives and validates user credentials.
-
-OAuth 2.0 Provider: Supports authorization flows using OAuth2orize or a custom implementation, allowing clients to request access tokens.
-
-Token Management: Issues JWTs or session tokens for authenticated users.
-
-Password Security: Hashes passwords securely using bcrypt before storing.
-
-Database: Stores user information, OAuth client data, tokens, and other metadata. Can be MongoDB, PostgreSQL, or any other preferred database.
-
-OAuth Client App: External applications that use OAuth flows to gain access to user data with proper authorization.
-
----
-
-## Protocols Supported
-OAuth 2.0 Authorization Code Grant (with PKCE)
-
-OAuth 2.0 Refresh Token Grant
-
-OpenID Connect Core (UserInfo endpoint)
-
-OAuth 2.0 Token Revocation (RFC 7009)
-
----
-
-## External Dependencies
-Node.js (v18+ recommended)
-Express.js
-MongoDB (via Mongoose)
-jsonwebtoken
-bcrypt
-express-rate-limit
-express-session
-nodemailer
-express-validator
-
----
-
-## Project Structure
-
+|  Client Application   +------->+ Authentication Server +------->+     Database       |
+| (Web/Mobile/3rd-Party)|        |  (Node.js + Express)  |        | (MongoDB/Postgres) |
++-----------------------+        +-----------------------+        +--------------------+
+           |                                |                                |
+           | OAuth 2.0 / Login / Register   | Credentials Validation         | User Data
+           |                                |                                | Storage
+           v                                v                                v
+   +------------------+         +---------------------+         +-----------------------+
+   | OAuth Client App |         | Passport.js /       |         | Password Hashing (bcrypt)|
+   +------------------+         | OAuth2orize Layer   |         +-----------------------+
+                                +---------------------+
 ```
-public/
-├── favicon.ico
-src/
-├── components/       # Navbar and Footer
-├── pages/            # Individual pages
-├── App.jsx           # Main app with routing
-├── main.jsx          # Entry point
-├── index.css         # Tailwind setup
-```
+
+### Architecture Components
+
+- **Client Application:** Any frontend (web/mobile) or third-party app requiring authentication.
+- **Authentication Server:** Node.js server using Express.js, Passport.js, and OAuth2orize.
+- **Database:** Stores users, tokens, sessions, OAuth clients.
+- **Token Management:** JWTs and sessions issued after successful authentication.
+
 ---
 
-## Installation
+## 📡 Supported Protocols
+
+- OAuth 2.0 Authorization Code (with PKCE)
+- OAuth 2.0 Refresh Token Grant
+- OAuth 2.0 Token Revocation (RFC 7009)
+- OpenID Connect (Basic Profile + UserInfo endpoint)
+
+---
+
+## 📦 External Dependencies
+
+- Node.js (v18+)
+- Express.js
+- MongoDB + Mongoose
+- Passport.js + OAuth2orize
+- jsonwebtoken
+- bcrypt
+- express-session
+- express-rate-limit
+- express-validator
+- nodemailer
+
+---
+
+## 🗂 Project Structure
+
+```bash
+Kerliix-website/
+├── config/
+│   ├── db.js                  # MongoDB connection setup
+│   ├── passport.js            # Passport strategies and session handling
+│   └── oauth.js               # OAuth2 server and grant configuration
+├── controllers/
+│   ├── authController.js      # Handles login, registration, logout
+│   ├── oauthController.js     # Handles authorization, token, user info endpoints
+│   └── userController.js      # User profile management and role handling
+├── middleware/
+│   ├── authMiddleware.js      # Authentication and role-checking middleware
+│   └── rateLimiter.js         # Rate limiting logic
+├── models/
+│   ├── User.js                # User schema
+│   ├── Client.js              # OAuth client schema
+│   ├── Token.js               # Access and refresh token schema
+│   └── LoginLog.js            # Device/session logging schema
+├── routes/
+│   ├── authRoutes.js          # Routes for login, register, logout
+│   ├── oauthRoutes.js         # Routes for authorization, token, revoke, userinfo
+│   └── userRoutes.js          # User dashboard, profile update, device sessions
+├── services/
+│   ├── emailService.js        # Sends welcome emails, reset emails, etc.
+│   ├── tokenService.js        # Token creation, verification, revocation
+│   └── deviceService.js       # Session/device tracking
+├── views/
+│   ├── login.ejs              # Login page
+│   ├── register.ejs           # Register page
+│   ├── consent.ejs            # OAuth consent screen
+│   └── dashboard.ejs          # User dashboard
+├── public/
+│   ├── css/
+│   └── js/
+├── .env                       # Environment variables
+├── .gitignore
+├── LICENSE
+├── README.md
+├── package.json
+└── server.js                 # Main Express app entry point
+```
+
+---
+
+## 🔧 Installation
 
 ```bash
 git clone https://github.com/kerliix/Kerliix-website.git
@@ -104,32 +125,58 @@ npm run dev
 
 ---
 
-# Roadmap
-Implement OpenID Connect logout (RP-Initiated logout).
+## 📌 Roadmap
 
-Enhance user interface for consent and profile management.
-
-Add advanced analytics and security monitoring.
-
-Support additional OAuth 2.0 grants (e.g., client credentials).
-
-Integrate intrusion detection and improved rate limiting.
+- ✅ Add token revocation and refresh token support.
+- ⏳ Implement OpenID Connect logout (RP-initiated logout).
+- ⏳ Consent screen improvements.
+- ⏳ Add client credentials grant type.
+- ⏳ Improve rate limiting and security analytics.
+- ⏳ UI for session/device management.
 
 ---
 
-# Acknowledgement and Special Thanks
-Inspired by the official OAuth 2.0 and OpenID Connect specifications.
+## ✅ What's Included
 
-Thanks to the Node.js and Express.js communities for their outstanding libraries and tools.
-
-Appreciation to open source contributors whose libraries made development efficient and secure.
-
-Special thanks to our internal team for feedback and testing.
+- Full OAuth 2.0 server implementation
+- Session and JWT-based auth support
+- Device and login logging
+- Rate limiting and validation
+- Modular codebase for extensibility
+- Optional role/permission structure
 
 ---
 
-License
-This project is licensed under the MIT License.
+## 🙌 Contributing
 
-Contact
-For questions or support, please contact [mahmoodkaliika810@gmail.com.com].
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository.
+2. Create your feature branch: `git checkout -b feature/your-feature`.
+3. Commit your changes: `git commit -m 'Add some feature'`.
+4. Push to the branch: `git push origin feature/your-feature`.
+5. Open a pull request.
+
+Feel free to submit issues and enhancement requests!
+
+---
+
+## 📬 Contact
+
+For questions, support, or business inquiries:
+
+📧 Email: [mahmoodkaliika810@gmail.com](mailto:mahmoodkaliika810@gmail.com)
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License. See `LICENSE` for details.
+
+---
+
+## 🙏 Acknowledgements
+
+- Inspired by the OAuth 2.0 and OpenID Connect specifications.
+- Thanks to the Node.js and open source community.
+- Special appreciation to internal testers and contributors.
