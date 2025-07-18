@@ -1,5 +1,6 @@
+// logger.js
 import winston from 'winston';
-import Log from '../models/Log.js'; // import the Log model
+import DBTransport from './db-transport.js';
 
 const { combine, timestamp, printf, colorize } = winston.format;
 
@@ -15,38 +16,10 @@ const logger = winston.createLogger({
     colorize(),
     logFormat
   ),
-  transports: [new winston.transports.Console()]
+  transports: [
+    new winston.transports.Console(),
+    new DBTransport()
+  ],
 });
-
-// ✅ Optional: Save important logs to the database
-const shouldLogToDb = (level) => {
-  return ['error', 'warn', 'info'].includes(level);
-};
-
-// Monkey-patch logger to intercept logs
-const originalLog = logger.log.bind(logger);
-
-logger.log = async (level, message, meta = {}) => {
-  originalLog(level, message);
-
-  if (shouldLogToDb(level)) {
-    try {
-      const { userId = null, type = null, req = null, metadata = {} } = meta;
-
-      await Log.create({
-        userId,
-        level,
-        type,
-        message,
-        metadata,
-        ip: req?.ip || null,
-        userAgent: req?.headers?.['user-agent'] || null
-      });
-    } catch (err) {
-      // Avoid crashing the app if logging fails
-      originalLog('error', `Failed to save log to DB: ${err.message}`);
-    }
-  }
-};
 
 export default logger;
