@@ -52,8 +52,13 @@ const userSchema = new mongoose.Schema({
   },
 
   // Optional phone number
+  phone: {
   countryCode: String,
   phoneNumber: String,
+  isVerified: { type: Boolean, default: false },
+  verificationCode: String,
+  verificationExpires: Date
+  },
 
   // Optional profile picture
   profilePicUrl: String,

@@ -1,7 +1,9 @@
-import User from '../models/User.js';
+import crypto from 'crypto';
 import bcrypt from 'bcrypt';
+import User from '../models/User.js';
 import logger from '../config/logger.js';
 import { sendVerificationEmail, sendWelcomeEmail } from '../services/emailService.js';
+import { sendPhoneVerificationCode } from '../services/smsService.js';
 
 const hashPassword = async (password) => await bcrypt.hash(password, 12);
 
@@ -123,19 +125,70 @@ export const getPhoneStep = (req, res) => {
   });
 };
 
-export const postPhoneStep = (req, res) => {
+export const postPhoneStep = async (req, res) => {
   if (!req.session.tempUser) return res.redirect('/auth/register');
 
   try {
     const { countryCode, phoneNumber } = req.body;
+
+    // Generate phone verification code and expiry
+    const phoneVerificationCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit code
+    const phoneVerificationExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
+    // Save phone and verification info in session
     req.session.tempUser = {
       ...req.session.tempUser,
       countryCode,
       phoneNumber,
+      phoneVerificationCode,
+      phoneVerificationExpires,
+      phoneIsVerified: false
     };
-    res.redirect('/auth/register/profile-pic');
+
+    // Send SMS with code
+    await sendPhoneVerificationCode(`${countryCode}${phoneNumber}`, phoneVerificationCode);
+
+    // Redirect to phone verification page
+    res.redirect('/auth/register/verify-phone');
   } catch (err) {
     logger.error('Error in postPhoneStep:', err);
+    res.status(500).send('Server error');
+  }
+};
+
+export const getVerifyPhone = (req, res) => {
+  res.render('auth/verify-phone', {
+    title: 'Verify Phone Number',
+    error: null,
+    success: null,
+    user: req.session.tempUser || {}
+  });
+};
+
+export const postVerifyPhone = (req, res) => {
+  try {
+    const { code } = req.body;
+    const temp = req.session.tempUser;
+
+    if (
+      !temp ||
+      temp.phoneVerificationCode !== code ||
+      new Date() > new Date(temp.phoneVerificationExpires)
+    ) {
+      return res.render('auth/verify-phone', {
+        error: 'Invalid or expired code',
+        title: 'Verify Phone Number',
+        success: null,
+        user: temp || {}
+      });
+    }
+
+    temp.phoneIsVerified = true;
+
+    // Proceed to next step (profile pic)
+    res.redirect('/auth/register/profile-pic');
+  } catch (err) {
+    logger.error('Error in postVerifyPhone:', err);
     res.status(500).send('Server error');
   }
 };
@@ -166,7 +219,27 @@ export const postProfilePicStep = async (req, res) => {
       profilePicUrl,
     };
 
-    const newUser = new User(req.session.tempUser);
+    // Build user data, including phone verification
+    const userData = {
+      email: req.session.tempUser.email,
+      username: req.session.tempUser.username,
+      password: req.session.tempUser.passwordHash,
+      isEmailVerified: req.session.tempUser.isEmailVerified || false,
+      firstName: req.session.tempUser.firstName,
+      lastName: req.session.tempUser.lastName,
+      dateOfBirth: req.session.tempUser.dateOfBirth,
+      sex: req.session.tempUser.sex,
+      profilePicUrl,
+      phone: {
+        countryCode: req.session.tempUser.countryCode || null,
+        phoneNumber: req.session.tempUser.phoneNumber || null,
+        isVerified: req.session.tempUser.phoneIsVerified || false,
+        verificationCode: null,
+        verificationExpires: null
+      }
+    };
+
+    const newUser = new User(userData);
     await newUser.save();
 
     req.session.userId = newUser._id;

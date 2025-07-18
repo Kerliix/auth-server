@@ -13,7 +13,27 @@ export const getAllAccounts = async (req, res) => {
 
 export const getAccountById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-passwordHash');
+    const user = await User.findById(req.params.id).select([
+      'email',
+      'username',
+      'role',
+      'isEmailVerified',
+      'lastLogin',
+      'mfa.isEnabled',
+      'mfa.method',
+      'firstName',
+      'lastName',
+      'dateOfBirth',
+      'sex',
+      'phone.countryCode',
+      'phone.phoneNumber',
+      'phone.isVerified',
+      'profilePicUrl',
+      'oauth.isOAuthUser',
+      'deactivated',
+      'createdAt',
+    ]);
+
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     res.status(200).json(user);

@@ -13,10 +13,12 @@ export const getAllAdmins = async (req, res) => {
 
 export const getAdminById = async (req, res) => {
   try {
-    const admin = await Admin.findById(req.params.id).select('-password');
+    const admin = await Admin.findById(req.params.id).select('name email role profilePic');
+
     if (!admin) {
       return res.status(404).json({ message: 'Admin not found' });
     }
+
     res.status(200).json(admin);
   } catch (err) {
     logger.error('Error fetching admin by ID:', err);

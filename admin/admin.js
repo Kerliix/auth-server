@@ -9,10 +9,10 @@ export const getAdminMe = async (req, res) => {
     // logger.info('Fetching admin profile for ID:', req.admin.id);
     const admin = await Admin.findById(req.admin.id).select('-password');
     if (!admin) {
-      logger.warn('Admin not found for ID:', req.admin.id);
+      //logger.warn('Admin not found for ID:', req.admin.id);
       return res.status(404).json({ message: 'Admin not found' });
     }
-    logger.info('Admin fetched:', admin.email);
+    //logger.info('Admin fetched:', admin.email);
     res.json({ admin });
   } catch (err) {
     logger.error('Error in /admin/me:', err);

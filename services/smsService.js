@@ -6,7 +6,6 @@ dotenv.config();
 
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
 
-// Verify Twilio credentials by fetching account info
 (async () => {
   try {
     const account = await client.api.accounts(process.env.TWILIO_SID).fetch();
@@ -33,4 +32,9 @@ export const sendSms = async (to, message) => {
     logger.error(`SMS sending failed to ${to}:`, error.message || error);
     throw error;
   }
+};
+
+export const sendPhoneVerificationCode = async (phoneNumber, code) => {
+  const message = `Your phone verification code is: ${code}`;
+  return await sendSms(phoneNumber, message);
 };

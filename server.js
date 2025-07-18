@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
-import cors from 'cors'
+import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import engine from 'ejs-mate';
@@ -73,6 +73,7 @@ export const tokenLimiter = rateLimit({
   message: { error: 'Too many requests, please try again later.' },
 });
 
+// Inject logged-in user into views
 app.use(async (req, res, next) => {
   if (req.session.userId) {
     try {
@@ -85,6 +86,12 @@ app.use(async (req, res, next) => {
   } else {
     res.locals.user = null;
   }
+  next();
+});
+
+// Inject currentPath into all views for active link highlighting
+app.use((req, res, next) => {
+  res.locals.currentPath = req.path;
   next();
 });
 

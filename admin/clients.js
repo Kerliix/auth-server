@@ -13,10 +13,12 @@ export const getAllClients = async (req, res) => {
 
 export const getClientById = async (req, res) => {
   try {
-    const client = await OAuthClient.findById(req.params.id);
+    const client = await OAuthClient.findById(req.params.id).select('name clientId redirectUris scopes createdAt');
+
     if (!client) {
       return res.status(404).json({ message: 'Client not found' });
     }
+
     res.status(200).json(client);
   } catch (err) {
     logger.error('Error fetching client by ID:', err);

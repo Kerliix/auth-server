@@ -6,6 +6,7 @@ import {
   getVerifyEmail, postVerifyEmail,
   getRegisterDetails, postRegisterDetails,
   getPhoneStep, postPhoneStep,
+  getVerifyPhone, postVerifyPhone,
   getProfilePicStep, postProfilePicStep
 } from '../controllers/registerController.js';
 import {
@@ -24,6 +25,9 @@ router.get('/register/details', getRegisterDetails);
 router.post('/register/details', postRegisterDetails);
 router.get('/register/phone', getPhoneStep);
 router.post('/register/phone', postPhoneStep);
+
+router.get('/register/verify-phone', getVerifyPhone);
+router.post('/register/verify-phone', postVerifyPhone);
 router.get('/register/profile-pic', getProfilePicStep);
 router.post('/register/profile-pic', upload.single('profilePic'), postProfilePicStep);
 router.get('/login', getLogin);
