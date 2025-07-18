@@ -14,10 +14,11 @@ import { flashMiddleware } from './middleware/flash.js';
 import rateLimit from 'express-rate-limit';
 import connectDB from './config/db.js';
 import logger from './config/logger.js';
+// import oidc from './oidc/index.js';
 
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
-import oauthRoutes from './routes/oauthRoutes.js';
+// import oauthRoutes from './routes/oauthRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import accountRoutes from './routes/accountRoutes.js';
 import securityRoutes from './routes/securityRoutes.js';
@@ -117,7 +118,8 @@ app.get('/health', (req, res) => {
 // Routes
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
-app.use('/oauth', oauthRoutes);
+// app.use('/oidc', oidc.callback());
+// app.use('/oauth', oauthRoutes);
 app.use('/admin', adminRoutes);
 app.use('/account', accountRoutes);
 app.use('/security', securityRoutes);

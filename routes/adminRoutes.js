@@ -6,10 +6,10 @@ import { adminSignIn } from '../admin/adminAuthController.js';
 import { getAdminMe , getAdminProfile, updateAdminProfile, uploadProfilePic } from '../admin/admin.js';
 import { getAllAccounts, getAccountById,} from '../admin/accounts.js';
 import { getAllClients, getClientById } from '../admin/clients.js';
-import { getAllAdmins, getAdminById } from '../admin/admins.js';
+import { getAllAdmins, getAdminById, createAdmin, changeAdminRole } from '../admin/admins.js';
 import { getAllLogs, getLogById } from '../admin/logs.js';
 import { getAllOrganizations, getOrganizationById } from '../admin/organizations.js';
-import { getDashboardCharts, getRecentLogs } from '../admin/dashboard.js';
+import { getDashboardCharts, getDashboardStats, getRecentLogs } from '../admin/dashboard.js';
 
 const router = express.Router();
 
@@ -26,6 +26,7 @@ const upload = multer({ storage });
 
 router.post('/signin', adminSignIn);
 router.get('/dashboard/charts', verifyAdmin, getDashboardCharts);
+router.get('/dashboard/stats', verifyAdmin, getDashboardStats);
 router.get('/logs/recent', verifyAdmin, getRecentLogs);
 router.get('/accounts', verifyAdmin, getAllAccounts);
 router.get('/accounts/:id', verifyAdmin, getAccountById);
@@ -33,6 +34,8 @@ router.get('/clients', verifyAdmin, getAllClients);
 router.get('/clients/:id', verifyAdmin, getClientById);
 router.get('/admins', verifyAdmin, getAllAdmins);
 router.get('/admins/:id', verifyAdmin, getAdminById);
+router.post('/admins', verifyAdmin, isSuperAdmin, createAdmin);
+router.put('/admins/:id/role', verifyAdmin, isSuperAdmin, changeAdminRole);
 router.get('/logs', verifyAdmin, getAllLogs);
 router.get('/logs/:id', verifyAdmin, getLogById);
 router.get('/organizations', verifyAdmin, getAllOrganizations);

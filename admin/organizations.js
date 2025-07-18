@@ -4,20 +4,28 @@ import logger from '../config/logger.js';
 
 export const getAllOrganizations = async (req, res) => {
   try {
-    const organizations = await Organization.find()
-      .populate('owner', 'email')
-      .lean();
+    const { search = '', sortBy = 'name' } = req.query;
 
-    const result = organizations.map(org => ({
-      _id: org._id,
-      name: org.name,
-      organizationId: org.organizationId,
-      ownerEmail: org.owner ? org.owner.email : null,
-    }));
+    const searchRegex = new RegExp(search, 'i');
+    const filter = {
+      $or: [
+        { name: { $regex: searchRegex } },
+        { organizationId: { $regex: searchRegex } },
+      ],
+    };
 
-    res.status(200).json(result);
-  } catch (error) {
-    logger.error('Error fetching organizations:', error);
+    if (search.match(/^[0-9a-fA-F]{24}$/)) {
+      filter.$or.push({ _id: search });
+    }
+
+    const allowedSortFields = ['name', 'organizationId', 'createdAt'];
+    const sortField = allowedSortFields.includes(sortBy) ? sortBy : 'name';
+
+    const organizations = await Organization.find(filter, 'name organizationId ownerEmail').sort({ [sortField]: 1 });
+
+    res.status(200).json(organizations);
+  } catch (err) {
+    logger.error('Error fetching organizations:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };

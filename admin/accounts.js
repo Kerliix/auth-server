@@ -3,7 +3,30 @@ import logger from '../config/logger.js';
 
 export const getAllAccounts = async (req, res) => {
   try {
-    const users = await User.find({}, 'name email createdAt');
+    const { search = '', sortBy = 'createdAt', order = 'desc' } = req.query;
+
+    const searchRegex = new RegExp(search, 'i'); // case-insensitive
+
+    // Build filter:
+    const filter = search
+      ? {
+          $or: [
+            { name: searchRegex },
+            { email: searchRegex },
+            { _id: search },  // exact match for id (no regex)
+          ],
+        }
+      : {};
+
+    // Validate sort field to prevent injection:
+    const validSortFields = ['name', 'email', 'createdAt'];
+    const sortField = validSortFields.includes(sortBy) ? sortBy : 'createdAt';
+
+    // Validate order
+    const sortOrder = order === 'asc' ? 1 : -1;
+
+    const users = await User.find(filter, 'name email createdAt').sort({ [sortField]: sortOrder });
+
     res.status(200).json(users);
   } catch (err) {
     logger.error('Error fetching users:', err);
