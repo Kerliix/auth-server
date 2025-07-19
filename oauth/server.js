@@ -12,8 +12,10 @@ server.serializeClient((client, done) => done(null, client.clientId));
 server.deserializeClient(async (clientId, done) => {
   try {
     const client = await OAuthClient.findOne({ clientId });
+    console.log('[DeserializeClient] Found client:', client?.clientId || 'null');
     done(null, client);
   } catch (err) {
+    console.error('[DeserializeClient] Error:', err);
     done(err);
   }
 });
@@ -22,10 +24,13 @@ server.deserializeClient(async (clientId, done) => {
 server.grant(oauth2orize.grant.code(async (client, redirectUri, user, ares, done) => {
   try {
     if (!user) {
-      return done(new Error('User is undefined in grant handler. Make sure req.user is set via middleware.'));
+      console.error('[Grant] User is undefined.');
+      return done(new Error('User is undefined in grant handler.'));
     }
 
     const code = crypto.randomBytes(16).toString('hex');
+    console.log('[Grant] Generating auth code for client:', client.clientId);
+
     await AuthorizationCode.create({
       code,
       clientId: client.clientId,
@@ -35,8 +40,10 @@ server.grant(oauth2orize.grant.code(async (client, redirectUri, user, ares, done
       expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 mins expiry
     });
 
+    console.log('[Grant] Auth code issued:', code);
     done(null, code);
   } catch (err) {
+    console.error('[Grant] Error:', err);
     done(err);
   }
 }));
@@ -44,14 +51,35 @@ server.grant(oauth2orize.grant.code(async (client, redirectUri, user, ares, done
 // Exchange code for token
 server.exchange(oauth2orize.exchange.code(async (client, code, redirectUri, done) => {
   try {
-    const authCode = await AuthorizationCode.findOne({ code });
+    console.log('[Token Exchange] Client ID:', client?.clientId || 'null');
+    console.log('[Token Exchange] Received code:', code);
+    console.log('[Token Exchange] Redirect URI:', redirectUri);
 
-    if (
-      !authCode ||
-      authCode.clientId !== client.clientId ||
-      authCode.redirectUri !== redirectUri ||
-      new Date() > authCode.expiresAt
-    ) {
+    if (!client) {
+      console.error('[Token Exchange] Client is null. Cannot proceed.');
+      return done(null, false);
+    }
+
+    const authCode = await AuthorizationCode.findOne({ code });
+    console.log('[Token Exchange] Fetched authCode:', authCode ? 'found' : 'null');
+
+    if (!authCode) {
+      console.error('[Token Exchange] Authorization code not found.');
+      return done(null, false);
+    }
+
+    if (authCode.clientId !== client.clientId) {
+      console.error('[Token Exchange] Client ID mismatch. Expected:', authCode.clientId, 'Got:', client.clientId);
+      return done(null, false);
+    }
+
+    if (authCode.redirectUri !== redirectUri) {
+      console.error('[Token Exchange] Redirect URI mismatch. Expected:', authCode.redirectUri, 'Got:', redirectUri);
+      return done(null, false);
+    }
+
+    if (new Date() > authCode.expiresAt) {
+      console.error('[Token Exchange] Authorization code has expired.');
       return done(null, false);
     }
 
@@ -65,13 +93,15 @@ server.exchange(oauth2orize.exchange.code(async (client, code, redirectUri, done
       clientId: client.clientId,
       scope: authCode.scope,
       issuedAt: new Date(),
-      expiresIn: 3600,
+      expiresIn: 3600, // 1 hour in seconds
     });
 
     await AuthorizationCode.deleteOne({ _id: authCode._id });
+    console.log('[Token Exchange] Token issued successfully.');
 
     done(null, accessToken, refreshToken, { expires_in: 3600 });
   } catch (err) {
+    console.error('[Token Exchange] ERROR:', err);
     done(err);
   }
 }));
@@ -79,9 +109,16 @@ server.exchange(oauth2orize.exchange.code(async (client, code, redirectUri, done
 // Refresh token exchange
 server.exchange(oauth2orize.exchange.refreshToken(async (client, refreshToken, scope, done) => {
   try {
-    const token = await AccessToken.findOne({ refreshToken });
+    console.log('[Refresh Token Exchange] Refresh token:', refreshToken);
 
-    if (!token || token.clientId !== client.clientId) {
+    const token = await AccessToken.findOne({ refreshToken });
+    if (!token) {
+      console.error('[Refresh Token Exchange] Token not found.');
+      return done(null, false);
+    }
+
+    if (token.clientId !== client.clientId) {
+      console.error('[Refresh Token Exchange] Client ID mismatch.');
       return done(null, false);
     }
 
@@ -92,8 +129,10 @@ server.exchange(oauth2orize.exchange.refreshToken(async (client, refreshToken, s
 
     await token.save();
 
+    console.log('[Refresh Token Exchange] Token refreshed successfully.');
     done(null, token.accessToken, token.refreshToken, { expires_in: 3600 });
   } catch (err) {
+    console.error('[Refresh Token Exchange] ERROR:', err);
     done(err);
   }
 }));

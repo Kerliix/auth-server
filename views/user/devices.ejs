@@ -4,25 +4,52 @@
 <html lang="en">
 <head>
   <title><%= title %></title>
+  <style>
+    .device-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .device-card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 1rem;
+      width: 300px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background-color: #f9f9f9;
+    }
+    .device-card h3 {
+      margin-top: 0;
+    }
+    .device-card form {
+      margin-top: 1rem;
+    }
+    .current-session {
+      color: green;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
   <h1>Devices</h1>
   <p>List and manage your connected devices here, <%= user.firstName %>.</p>
-  <ul>
-  <% devices.forEach(device => { %>
-    <li>
-      <strong><%= device.device %></strong> - 
-      <%= device.location %> - 
-      <%= new Date(device.time).toLocaleString() %> 
-      <% if (device.sessionId === currentSessionId) { %>
-        <span>(Current Session)</span>
-      <% } else { %>
-        <form action="/user/devices/logout/<%= device.sessionId %>" method="POST" style="display:inline;">
-          <button type="submit">Logout</button>
-        </form>
-      <% } %>
-    </li>
-  <% }); %>
-</ul>
+
+  <div class="device-container">
+    <% devices.forEach(device => { %>
+      <div class="device-card">
+        <h3><%= device.device %></h3>
+        <p><strong>Location:</strong> <%= device.location %></p>
+        <p><strong>Last Active:</strong> <%= new Date(device.time).toLocaleString() %></p>
+        <% if (device.sessionId === currentSessionId) { %>
+          <p class="current-session">(Current Session)</p>
+        <% } else { %>
+          <form action="/user/devices/logout/<%= device.sessionId %>" method="POST">
+            <button type="submit">Logout</button>
+          </form>
+        <% } %>
+      </div>
+    <% }); %>
+  </div>
 </body>
 </html>

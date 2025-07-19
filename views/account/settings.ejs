@@ -1,23 +1,119 @@
 <% layout('layouts/user') -%>
 
-<h2>Your account</h2>
+<style>
+  h2 {
+    color: #333;
+    margin-top: 2rem;
+    border-bottom: 2px solid #4A90E2;
+    padding-bottom: 0.3rem;
+  }
 
-<% if (error) { %><p class="error"><%= error %></p><% } %>
-<% if (success) { %><p class="success"><%= success %></p><% } %>
+  .message {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 6px;
+  }
+  .error {
+    background-color: #ffe6e6;
+    color: #cc0000;
+    border: 1px solid #cc0000;
+  }
+  .success {
+    background-color: #e6ffe6;
+    color: #007700;
+    border: 1px solid #007700;
+  }
 
+  .card {
+    background-color: #f9f9f9;
+    padding: 1.2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-top: 1rem;
+    max-width: 400px;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 0.5rem 0.7rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+
+  button {
+    margin-top: 0.7rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #4A90E2;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #357ABD;
+  }
+
+  .danger-zone {
+    margin-top: 3rem;
+    padding: 1.5rem;
+    border: 1px solid #e74c3c;
+    background-color: #fdecea;
+    border-radius: 8px;
+  }
+  .danger-zone h2 {
+    color: #e74c3c;
+    border-color: #e74c3c;
+  }
+  .danger-zone button {
+    background-color: #e74c3c;
+  }
+  .danger-zone button:hover {
+    background-color: #c0392b;
+  }
+</style>
+
+<h2>Your Account</h2>
+
+<% if (error) { %>
+  <p class="message error"><%= error %></p>
+<% } %>
+<% if (success) { %>
+  <p class="message success"><%= success %></p>
+<% } %>
+
+<!-- Change Username Section -->
 <h2>Change Username</h2>
-<form action="/account/change-username" method="POST">
-  <input type="text" name="newUsername" value="<%= user.username %>" required />
-  <button type="submit">Change Username</button>
-</form>
+<button onclick="document.getElementById('username-card').classList.toggle('hidden')">
+  Change Username
+</button>
 
-<h2>Danger Zone</h2>
-<h2>Deactivate Account</h2>
-<form action="/account/deactivate" method="POST" onsubmit="return confirm('Are you sure?')">
-  <button type="submit">Deactivate Account</button>
-</form>
+<div id="username-card" class="card hidden">
+  <form action="/account/change-username" method="POST">
+    <label for="newUsername">New Username:</label>
+    <input type="text" name="newUsername" id="newUsername" value="<%= user.username %>" required />
+    <button type="submit">Save Changes</button>
+  </form>
+</div>
 
-<h2>Delete Account</h2>
-<form action="/account/delete" method="POST" onsubmit="return confirm('This will permanently delete your account. Are you sure?')">
-  <button type="submit">Delete Account</button>
-</form>
+<!-- Danger Zone -->
+<div class="danger-zone">
+  <h2>Danger Zone</h2>
+
+  <h3>Deactivate Account</h3>
+  <form action="/account/deactivate" method="POST" onsubmit="return confirm('Are you sure?')">
+    <button type="submit">Deactivate Account</button>
+  </form>
+
+  <h3>Delete Account</h3>
+  <form action="/account/delete" method="POST" onsubmit="return confirm('This will permanently delete your account. Are you sure?')">
+    <button type="submit">Delete Account</button>
+  </form>
+</div>

@@ -27,6 +27,9 @@ import oauth2Server from '../oauth/server.js';
 import { requireAuth, loadUser } from '../middleware/auth.js';
 import { ensureMfaVerified } from '../middleware/mfa.js';
 import OAuthClient from '../models/OAuthClient.js';
+import { authenticateClient } from '../middleware/clientAuth.js';
+import AccessToken from '../models/AccessToken.js';
+import User from '../models/User.js';
 
 const router = express.Router();
 
@@ -70,6 +73,7 @@ router.get('/authorize',
     }
 
     res.render('oauth/authorize', {
+      title: 'Authorize Access',
       transactionID: req.oauth2.transactionID,
       user: req.user,
       client: req.oauth2.client,
@@ -89,6 +93,48 @@ router.post('/authorize/decision',
 );
 
 // Step 3: POST /token
-router.post('/token', oauth2Server.token(), oauth2Server.errorHandler());
+router.post('/token',
+  authenticateClient,
+  (req, res, next) => {
+    // Attach client to OAuth2orize context if present
+    if (req.oauth2?.client) {
+      req.user = req.oauth2.client; // oauth2orize uses req.user as the client
+    }
+    next();
+  },
+  oauth2Server.token(),
+  oauth2Server.errorHandler()
+);
+
+// userInfo
+router.get('/oauth/userinfo', async (req, res) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const accessToken = await AccessToken.findOne({ accessToken: token }).populate('user');
+    if (!accessToken) {
+      return res.status(401).json({ error: 'Invalid access token' });
+    }
+
+    if (!accessToken.user) {
+      return res.status(404).json({ error: 'User not found for this token' });
+    }
+
+    const user = accessToken.user;
+    res.json({
+      sub: user._id,
+      name: user.name,
+      email: user.email,
+    });
+  } catch (err) {
+    console.error('[UserInfo] Error fetching user info:', err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
 
 export default router;
