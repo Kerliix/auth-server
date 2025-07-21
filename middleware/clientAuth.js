@@ -1,4 +1,3 @@
-// middleware/clientAuth.js
 import OAuthClient from '../models/OAuthClient.js';
 import base64 from 'base-64';
 

@@ -31,3 +31,10 @@ Do **not** create a GitHub issue for security-related matters.
 - Session management and token revocation
 - Role-based access control
 - Audit logging for login and sensitive events
+
+---
+
+![Kerliix Logo](https://raw.githubusercontent.com/Kerliix/.github/main/company/kx-logo.png)
+
+> ©2025 Kerliix. All rights reserved.  
+> _It’s all about you._

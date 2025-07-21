@@ -1,35 +1,11 @@
-/*
-import express from 'express';
-import { requireAuth } from '../middleware/auth.js';
-import { getAuthorizePage, postAuthorizeDecision } from '../oauth/oauthController.js';
-import { issueToken } from '../oauth/issueToken.js';
-import { registerClient } from '../oauth/registerClient.js';
-import { revokeToken } from '../oauth/revokeToken.js';
-import { userInfo } from '../oauth/userInfo.js';
-import { tokenLimiter } from '../middleware/rateLimiter.js'; 
-import { ensureMfaVerified } from '../middleware/mfa.js';
-
-const router = express.Router();
-
-router.get('/authorize', requireAuth, ensureMfaVerified, getAuthorizePage);
-router.post('/authorize', requireAuth, ensureMfaVerified, postAuthorizeDecision);
-router.post('/token', tokenLimiter, issueToken);
-router.get('/revoke-Token', requireAuth, ensureMfaVerified, revokeToken);
-router.post('/register-client', registerClient);
-router.get('/userinfo', requireAuth, ensureMfaVerified, userInfo);
-
-export default router;
-*/
-
 // routes/oauthRoutes.js
 import express from 'express';
-import oauth2Server from '../oauth/server.js';
+import oauth2Server from '../oauth/index.js';
 import { requireAuth, loadUser } from '../middleware/auth.js';
 import { ensureMfaVerified } from '../middleware/mfa.js';
 import OAuthClient from '../models/OAuthClient.js';
 import { authenticateClient } from '../middleware/clientAuth.js';
 import AccessToken from '../models/AccessToken.js';
-import User from '../models/User.js';
 
 const router = express.Router();
 
@@ -40,6 +16,12 @@ router.use(loadUser);
 router.get('/authorize',
   requireAuth,
   ensureMfaVerified,
+  // Log session before authorize middleware
+  (req, res, next) => {
+    console.log('[Authorize] Session ID:', req.sessionID);
+    console.log('[Authorize] Session Data:', req.session);
+    next();
+  },
   oauth2Server.authorize(async (clientId, redirectUri, done) => {
     try {
       console.log('[Authorize] Received clientId:', clientId);
@@ -67,7 +49,6 @@ router.get('/authorize',
     }
   }),
   (req, res) => {
-    // Render consent page only if user is loaded
     if (!req.user) {
       return res.status(401).send('User not authenticated');
     }
@@ -87,6 +68,12 @@ router.get('/authorize',
 // Step 2: POST /authorize/decision
 router.post('/authorize/decision',
   requireAuth,
+  // Log session here as well
+  (req, res, next) => {
+    console.log('[Authorize Decision] Session ID:', req.sessionID);
+    console.log('[Authorize Decision] Session Data:', req.session);
+    next();
+  },
   oauth2Server.decision((req, done) => {
     return done(null, { scope: req.body.scope });
   })
@@ -95,19 +82,37 @@ router.post('/authorize/decision',
 // Step 3: POST /token
 router.post('/token',
   authenticateClient,
+
+  // Log session before token processing
   (req, res, next) => {
-    // Attach client to OAuth2orize context if present
+    console.log('[Token] Session ID:', req.sessionID);
+    console.log('[Token] Session Data:', req.session);
     if (req.oauth2?.client) {
       req.user = req.oauth2.client; // oauth2orize uses req.user as the client
     }
     next();
   },
+
+  // Handle token generation
   oauth2Server.token(),
+
+  // Final success/error logger
+  (req, res, next) => {
+    const sessionId = req.sessionID;
+    if (res.headersSent && res.statusCode === 200) {
+      console.log(`[Token Result] SUCCESS for session ${sessionId}`);
+    } else {
+      console.error(`[Token Result] ERROR for session ${sessionId} with status ${res.statusCode}`);
+    }
+    next();
+  },
+
+  // Default OAuth2 error handler
   oauth2Server.errorHandler()
 );
 
-// userInfo
-router.get('/oauth/userinfo', async (req, res) => {
+// userInfo endpoint
+router.get('/userinfo', async (req, res) => {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Missing or invalid Authorization header' });
