@@ -1,6 +1,6 @@
 :root {
-  --primary-color: #6A00FA;
-  --hover-color: #00E3C2;
+  --primary-color: #00E3C2;
+  --hover-color: #6A00FA;
   --active-bg: rgba(255, 255, 255, 0.15);
 }
 
@@ -88,7 +88,7 @@ header {
   background: var(--primary-color);
   width: 100%;
   flex-direction: column;
-  border-top: 1px solid #4e00bd;
+  border-top: 1px solid #00E3C2;
   z-index: 1000;
 }
 
@@ -100,7 +100,7 @@ header {
   padding: 0.75rem 1rem;
   text-decoration: none;
   color: white;
-  border-bottom: 1px solid #4e00bd;
+  border-bottom: 1px solid #00E3C2;
   transition: background-color 0.2s ease;
 }
 
@@ -123,7 +123,7 @@ header {
   width: 280px;
   background-color: var(--primary-color);
   padding: 1rem;
-  border-right: 1px solid #4e00bd;
+  border-right: 1px solid #00E3C2;
   color: white;
 }
 

@@ -57,6 +57,27 @@ export const changeUsername = async (req, res) => {
   });
 };
 
+export const getDevices = async (req, res) => {
+  const user = await User.findById(req.session.userId);
+  if (!user) return res.redirect('/auth/login');
+
+  const devices = await LoginLog.find({ userId: user._id, isActive: true })
+    .sort({ time: -1 });
+
+  res.render('account/devices', {
+    title: 'Devices',
+    user,
+    devices,
+    currentSessionId: req.session.sessionId
+  });
+};
+
+export const getMyApps = async (req, res) => {
+  const user = await User.findById(req.session.userId);
+  if (!user) return res.redirect('/auth/login');
+  res.render('account/my-apps', { title: 'My Apps', user });
+};
+
 export const deactivateAccount = async (req, res) => {
   const userId = req.session.userId;
   const user = await User.findById(userId);

@@ -13,8 +13,6 @@ import {
   changeEmail,
   verifyNewEmail,
   updateProfile,
-  getDevices,
-  getMyApps
 } from '../controllers/userController.js';
 
 import { requireAuth } from '../middleware/auth.js';
@@ -45,20 +43,5 @@ router.post('/change-password', requireAuth, ensureMfaVerified, changePassword);
 router.post('/change-email', requireAuth, ensureMfaVerified, changeEmail);
 router.post('/verify-new-email', requireAuth, ensureMfaVerified, verifyNewEmail);
 router.post('/update-profile', requireAuth, ensureMfaVerified, upload.single('profilePic'), updateProfile);
-router.get('/devices', requireAuth, ensureMfaVerified, getDevices);
-router.post('/devices/logout/:sessionId', async (req, res) => {
-  const { sessionId } = req.params;
-  const userId = req.session.userId;
-
-  const log = await LoginLog.findOne({ userId, sessionId, isActive: true });
-  if (log) {
-    await LoginLog.updateOne({ _id: log._id }, { isActive: false });
-    // Optionally destroy session if you're storing them in DB
-  }
-
-  res.redirect('/user/devices');
-});
-
-router.get('/my-apps', requireAuth, ensureMfaVerified, getMyApps);
 
 export default router;

@@ -44,7 +44,7 @@
         <% if (device.sessionId === currentSessionId) { %>
           <p class="current-session">(Current Session)</p>
         <% } else { %>
-          <form action="/user/devices/logout/<%= device.sessionId %>" method="POST">
+          <form action="/account/devices/logout/<%= device.sessionId %>" method="POST">
             <button type="submit">Logout</button>
           </form>
         <% } %>

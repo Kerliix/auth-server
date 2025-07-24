@@ -6,7 +6,7 @@ export const getSecurity = async (req, res) => {
   const user = await User.findById(req.session.userId);
   if (!user) return res.redirect('/auth/login');
 
-  res.render('user/security', {
+  res.render('account/security', {
     title: 'Security',
     user,
     mfa: user.mfa,
@@ -55,7 +55,7 @@ export const getTotpSetup = async (req, res) => {
 
   const qrImageUrl = await qrcode.toDataURL(otpauth);
 
-  res.render('user/totp-setup', {
+  res.render('account/totp-setup', {
     title: 'Set Up TOTP',
     qrImageUrl,
     secret,

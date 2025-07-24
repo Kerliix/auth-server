@@ -162,24 +162,3 @@ export const updateProfile = async (req, res) => {
     session: req.session
   });
 };
-
-export const getDevices = async (req, res) => {
-  const user = await User.findById(req.session.userId);
-  if (!user) return res.redirect('/auth/login');
-
-  const devices = await LoginLog.find({ userId: user._id, isActive: true })
-    .sort({ time: -1 });
-
-  res.render('user/devices', {
-    title: 'Devices',
-    user,
-    devices,
-    currentSessionId: req.session.sessionId
-  });
-};
-
-export const getMyApps = async (req, res) => {
-  const user = await User.findById(req.session.userId);
-  if (!user) return res.redirect('/auth/login');
-  res.render('user/my-apps', { title: 'My Apps', user });
-};

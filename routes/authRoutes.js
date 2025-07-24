@@ -10,9 +10,11 @@ import {
   getProfilePicStep, postProfilePicStep
 } from '../controllers/registerController.js';
 import {
-  getLogin, postLogin, getMfa, postMfa,
-  logout
+  getLogin, postLogin, getMfa, postMfa
 } from '../controllers/loginController.js';
+import {
+  logout
+} from '../controllers/logoutController.js';
 
 const router = express.Router();
 const upload = multer({ dest: 'public/uploads' });

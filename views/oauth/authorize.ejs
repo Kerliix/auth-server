@@ -1,39 +1,31 @@
-<% layout('layouts/oauth') %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Authorize <%= client.name || client.clientId %></h1>
+    <p><%= client.name || client.clientId %> is requesting access to your account.</p>
+    <p>Requested scope: <strong><%= scope || 'None' %></strong></p>
 
-<%
-// Extract first name from user full name or email as fallback
-const firstName = user && user.name 
-  ? user.name.split(' ')[0] 
-  : user && user.email 
-    ? user.email.split('@')[0] 
-    : 'User';
+    <form method="POST" action="/oauth/authorize/decision">
+      <input type="hidden" name="transaction_id" value="<%= transactionID %>" />
+      <input type="hidden" name="redirect_uri" value="<%= redirect_uri %>" />
+      <input type="hidden" name="scope" value="<%= scope %>" />
+      <input type="hidden" name="state" value="<%= state %>" />
 
-// Format scope to a readable list, e.g. "email, profile, openid"
-const requestedScopes = scope ? scope.split(' ').join(', ') : '';
-%>
+      <!-- Include PKCE fields if present -->
+      <% if (code_challenge && code_challenge_method) { %>
+        <input type="hidden" name="code_challenge" value="<%= code_challenge %>" />
+        <input type="hidden" name="code_challenge_method" value="<%= code_challenge_method %>" />
+      <% } %>
 
-<h2 class="mb-4">Authorize Application</h2>
-
-<p>Hello <strong><%= firstName %></strong>,</p>
-
-<p>
-  <strong><%= client.name %></strong> is requesting access to your account and would like to access the following information:
-</p>
-
-<p><em><%= requestedScopes %></em></p>
-
-<p>
-  We will share only the information requested above with the client. 
-  To learn more about how your data is used, please visit 
-  <a href="/privacy" target="_blank" rel="noopener noreferrer">our data sharing policy</a>.
-</p>
-
-<form method="post" action="/oauth/authorize/decision" class="mt-4">
-  <input type="hidden" name="transaction_id" value="<%= transactionID %>">
-  <input type="hidden" name="scope" value="<%= scope %>">
-
-  <div class="d-flex gap-3">
-    <button type="submit" name="approve" value="1" class="btn btn-primary">Allow</button>
-    <button type="submit" name="approve" value="0" class="btn btn-secondary">Deny</button>
+      <button type="submit" name="allow" value="yes">Allow</button>
+      <button type="submit" name="cancel" value="no">Deny</button>
+    </form>
   </div>
-</form>
+</body>
+</html>
