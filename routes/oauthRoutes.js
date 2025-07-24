@@ -1,21 +1,26 @@
 import express from 'express';
-import oauth2Server from '../oauth/index.js';
+import oauth2Server from '../oauth/server.js';
 import { requireAuth, loadUser } from '../middleware/auth.js';
 import { ensureMfaVerified } from '../middleware/mfa.js';
-import OAuthClient from '../models/OAuthClient.js';
 import { authenticateClient } from '../middleware/clientAuth.js';
+import OAuthClient from '../models/OAuthClient.js';
 import AccessToken from '../models/AccessToken.js';
 import logger from '../config/logger.js';
+import csrf from 'csurf';
 
 const router = express.Router();
+const csrfProtection = csrf({ cookie: true });
+
+// Inject user from session or token
 router.use(loadUser);
 
-// AUTHORIZATION ENDPOINT
+// AUTHORIZATION ENDPOINT (GET /oauth/authorize)
 router.get('/authorize',
   requireAuth,
   ensureMfaVerified,
+  csrfProtection,
   (req, res, next) => {
-    logger.info('[Authorize] Session ID:', req.sessionID);
+    logger.info('[Authorize] Request from IP:', req.ip, 'User-Agent:', req.get('User-Agent'));
     next();
   },
   oauth2Server.authorize(async (clientId, redirectUri, done) => {
@@ -26,7 +31,7 @@ router.get('/authorize',
       }
       return done(null, client, redirectUri);
     } catch (err) {
-      logger.error('[Authorize] Error:', err);
+      logger.error('[Authorize] Client Lookup Error:', err);
       return done(err);
     }
   }),
@@ -34,6 +39,7 @@ router.get('/authorize',
     if (!req.user) return res.status(401).send('User not authenticated');
     res.render('oauth/authorize', {
       title: 'Authorize Access',
+      csrfToken: req.csrfToken(),
       transactionID: req.oauth2.transactionID,
       user: req.user,
       client: req.oauth2.client,
@@ -46,43 +52,51 @@ router.get('/authorize',
   }
 );
 
-// DECISION ENDPOINT
+// DECISION ENDPOINT (POST /oauth/authorize/decision)
 router.post('/authorize/decision',
   requireAuth,
+  csrfProtection,
   (req, res, next) => {
-    logger.info('[Authorize Decision] Session ID:', req.sessionID);
+    logger.info('[Authorize Decision] IP:', req.ip, 'User-Agent:', req.get('User-Agent'));
     next();
   },
   oauth2Server.decision((req, done) => {
+    const { scope, code_challenge, code_challenge_method } = req.body;
+
+    // Only allow S256 PKCE
+    if (!code_challenge || code_challenge_method !== 'S256') {
+      return done(new Error('Only S256 PKCE is supported'));
+    }
+
     return done(null, {
-      scope: req.body.scope,
-      code_challenge: req.body.code_challenge,
-      code_challenge_method: req.body.code_challenge_method,
+      scope,
+      code_challenge,
+      code_challenge_method,
     });
   })
 );
 
-// TOKEN EXCHANGE
+// TOKEN EXCHANGE (POST /oauth/token)
 router.post('/token',
   authenticateClient,
   (req, res, next) => {
-    logger.info('[Token] Session ID:', req.sessionID);
+    logger.info('[Token] Request from IP:', req.ip, 'User-Agent:', req.get('User-Agent'));
     if (req.oauth2?.client) req.user = req.oauth2.client;
     next();
   },
   oauth2Server.token(),
   (req, res, next) => {
     if (res.headersSent && res.statusCode === 200) {
-      logger.info(`[Token Result] SUCCESS for session ${req.sessionID}`);
+      logger.info(`[Token Result] SUCCESS`);
     } else {
-      logger.error(`[Token Result] ERROR for session ${req.sessionID} with status ${res.statusCode}`);
+      logger.error(`[Token Result] FAILURE with status ${res.statusCode}`);
     }
     next();
   },
   oauth2Server.errorHandler()
 );
 
-// USERINFO ENDPOINT (OIDC)
+// USERINFO ENDPOINT (GET /oauth/userinfo)
 router.get('/userinfo', async (req, res) => {
   const authHeader = req.headers['authorization'];
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -98,7 +112,7 @@ router.get('/userinfo', async (req, res) => {
 
     const user = accessToken.user;
     if (!user) {
-      return res.status(404).json({ error: 'User not found for this token' });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     res.json({
@@ -112,7 +126,7 @@ router.get('/userinfo', async (req, res) => {
   }
 });
 
-// TOKEN REVOCATION (RFC 7009)
+// TOKEN REVOCATION (POST /oauth/revoke)
 router.post('/revoke',
   authenticateClient,
   async (req, res) => {
@@ -120,9 +134,9 @@ router.post('/revoke',
     if (!token) return res.status(400).json({ error: 'Missing token' });
 
     try {
-      const result = await oauth2Server.revoke(token);
-      if (result) {
-        logger.info('[Revoke] Token revoked successfully');
+      const revoked = await oauth2Server.revoke(token);
+      if (revoked) {
+        logger.info('[Revoke] Token revoked. IP:', req.ip, 'Client:', req.oauth2?.client?.clientId);
       } else {
         logger.warn('[Revoke] Token not found');
       }
@@ -134,7 +148,7 @@ router.post('/revoke',
   }
 );
 
-// TOKEN INTROSPECTION (RFC 7662)
+// TOKEN INTROSPECTION (POST /oauth/introspect)
 router.post('/introspect',
   authenticateClient,
   async (req, res) => {
@@ -151,10 +165,10 @@ router.post('/introspect',
   }
 );
 
-// OIDC Discovery
+// OIDC DISCOVERY DOCUMENT (GET /.well-known/openid-configuration)
 router.get('/.well-known/openid-configuration', (req, res) => {
   const issuer = process.env.JWT_ISSUER || 'https://auth.kerliix.com';
-  const base = issuer.endsWith('/') ? issuer.slice(0, -1) : issuer;
+  const base = issuer.replace(/\/+$/, '');
 
   res.json({
     issuer: base,
@@ -173,7 +187,7 @@ router.get('/.well-known/openid-configuration', (req, res) => {
   });
 });
 
-// JWKS Endpoint
+// JWKS ENDPOINT (GET /oauth/jwks.json)
 router.get('/jwks.json', async (req, res) => {
   try {
     const jwks = await oauth2Server.getJWKS();

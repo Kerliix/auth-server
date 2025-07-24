@@ -1,31 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title><%= title %></title>
-  <link rel="stylesheet" href="/styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %> | Kerliix</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f7f8fa;
+      color: #333;
+      max-width: 500px;
+      margin: 4rem auto;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      background-color: #fff;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 1rem; }
+    form { display: flex; flex-direction: column; gap: 1rem; }
+    button {
+      padding: 0.7rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .approve { background: #0e8c44; color: white; }
+    .deny { background: #c52f2f; color: white; }
+    small { color: #888; font-size: 0.9rem; }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Authorize <%= client.name || client.clientId %></h1>
-    <p><%= client.name || client.clientId %> is requesting access to your account.</p>
-    <p>Requested scope: <strong><%= scope || 'None' %></strong></p>
+  <h1><%= client.name %> wants to access your Kerliix account</h1>
 
-    <form method="POST" action="/oauth/authorize/decision">
-      <input type="hidden" name="transaction_id" value="<%= transactionID %>" />
-      <input type="hidden" name="redirect_uri" value="<%= redirect_uri %>" />
-      <input type="hidden" name="scope" value="<%= scope %>" />
-      <input type="hidden" name="state" value="<%= state %>" />
+  <p><strong>Email:</strong> <%= user.email %></p>
 
-      <!-- Include PKCE fields if present -->
-      <% if (code_challenge && code_challenge_method) { %>
-        <input type="hidden" name="code_challenge" value="<%= code_challenge %>" />
-        <input type="hidden" name="code_challenge_method" value="<%= code_challenge_method %>" />
-      <% } %>
+  <% if (scope) { %>
+    <p><strong>Requested permissions:</strong> <%= scope %></p>
+  <% } %>
 
-      <button type="submit" name="allow" value="yes">Allow</button>
-      <button type="submit" name="cancel" value="no">Deny</button>
-    </form>
-  </div>
+  <form method="POST" action="/oauth/authorize/decision">
+    <!-- CSRF token -->
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+    <!-- OAuth2 required params -->
+    <input type="hidden" name="transaction_id" value="<%= transactionID %>" />
+    <input type="hidden" name="scope" value="<%= scope %>" />
+    <input type="hidden" name="redirect_uri" value="<%= redirect_uri %>" />
+    <input type="hidden" name="code_challenge" value="<%= code_challenge %>" />
+    <input type="hidden" name="code_challenge_method" value="<%= code_challenge_method %>" />
+
+    <button type="submit" class="approve">Allow</button>
+  </form>
+
+  <form method="POST" action="/oauth/authorize/decision?_deny=1" style="margin-top: 0.5rem;">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+    <input type="hidden" name="transaction_id" value="<%= transactionID %>" />
+    <button type="submit" class="deny">Deny</button>
+  </form>
+
+  <small>You are authorizing this app to access the information listed above.</small>
 </body>
 </html>

@@ -6,19 +6,18 @@ import path from 'path';
 import OAuthClient from '../models/OAuthClient.js';
 import AuthorizationCode from '../models/AuthorizationCode.js';
 import AccessToken from '../models/AccessToken.js';
-import logger from '../config/logger.js';
 import User from '../models/User.js';
+import logger from '../config/logger.js';
 
 const JWT_ISSUER = process.env.JWT_ISSUER || 'https://auth.kerliix.com';
 const JWT_ALG = 'RS256';
-const PRIVATE_KEY_PATH = path.join(process.cwd(), 'keys', 'private.pem');
-const PUBLIC_KEY_PATH = path.join(process.cwd(), 'keys', 'public.pem');
-const PRIVATE_KEY = fs.readFileSync(PRIVATE_KEY_PATH);
-const PUBLIC_KEY = fs.readFileSync(PUBLIC_KEY_PATH);
+const PRIVATE_KEY = fs.readFileSync(path.join(process.cwd(), 'keys/private.pem'));
+const PUBLIC_KEY = fs.readFileSync(path.join(process.cwd(), 'keys/public.pem'));
 
 const server = oauth2orize.createServer();
 
 server.serializeClient((client, done) => done(null, client.clientId));
+
 server.deserializeClient(async (clientId, done) => {
   try {
     const client = await OAuthClient.findOne({ clientId });
@@ -29,8 +28,13 @@ server.deserializeClient(async (clientId, done) => {
   }
 });
 
+// Authorization Code Grant (with S256 PKCE)
 server.grant(oauth2orize.grant.code(async (client, redirectUri, user, ares, done) => {
   try {
+    if (!ares.code_challenge || ares.code_challenge_method !== 'S256') {
+      return done(new Error('PKCE S256 required'));
+    }
+
     const code = crypto.randomBytes(16).toString('hex');
     await AuthorizationCode.create({
       code,
@@ -39,8 +43,8 @@ server.grant(oauth2orize.grant.code(async (client, redirectUri, user, ares, done
       user: user._id,
       scope: ares.scope,
       codeChallenge: ares.code_challenge,
-      codeChallengeMethod: ares.code_challenge_method || 'plain',
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      codeChallengeMethod: 'S256',
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 minutes
     });
     done(null, code);
   } catch (err) {
@@ -49,22 +53,20 @@ server.grant(oauth2orize.grant.code(async (client, redirectUri, user, ares, done
   }
 }));
 
+// Authorization Code Exchange
 server.exchange(oauth2orize.exchange.code(async (client, code, redirectUri, req, done) => {
   try {
     const authCode = await AuthorizationCode.findOne({ code });
-    if (!authCode || authCode.clientId !== client.clientId || authCode.redirectUri !== redirectUri) return done(null, false);
+    if (!authCode || authCode.clientId !== client.clientId || authCode.redirectUri !== redirectUri) {
+      return done(null, false);
+    }
     if (new Date() > authCode.expiresAt) return done(null, false);
 
-    if (authCode.codeChallenge) {
-      const codeVerifier = req.body.code_verifier;
-      if (!codeVerifier) return done(null, false);
-      let expectedChallenge = codeVerifier;
-      if (authCode.codeChallengeMethod === 'S256') {
-        const hash = crypto.createHash('sha256').update(codeVerifier).digest();
-        expectedChallenge = hash.toString('base64url');
-      }
-      if (expectedChallenge !== authCode.codeChallenge) return done(null, false);
-    }
+    const codeVerifier = req.body.code_verifier;
+    if (!codeVerifier) return done(null, false);
+    const hash = crypto.createHash('sha256').update(codeVerifier).digest();
+    const expectedChallenge = hash.toString('base64url');
+    if (expectedChallenge !== authCode.codeChallenge) return done(null, false);
 
     const accessToken = crypto.randomBytes(32).toString('hex');
     const refreshToken = crypto.randomBytes(32).toString('hex');
@@ -93,6 +95,7 @@ server.exchange(oauth2orize.exchange.code(async (client, code, redirectUri, req,
   }
 }));
 
+// Refresh Token Exchange
 server.exchange(oauth2orize.exchange.refreshToken(async (client, refreshToken, scope, done) => {
   try {
     const token = await AccessToken.findOne({ refreshToken });
@@ -118,6 +121,7 @@ server.exchange(oauth2orize.exchange.refreshToken(async (client, refreshToken, s
   }
 }));
 
+// Client Credentials Grant
 server.exchange(oauth2orize.exchange.clientCredentials(async (client, scope, done) => {
   try {
     const accessToken = crypto.randomBytes(32).toString('hex');
@@ -138,14 +142,17 @@ server.exchange(oauth2orize.exchange.clientCredentials(async (client, scope, don
   }
 }));
 
+// Revocation with Audit Logging
 server.revoke = async function (token) {
-  const deleted = await AccessToken.deleteOne({ $or: [
+  const result = await AccessToken.deleteOne({ $or: [
     { accessToken: token },
     { refreshToken: token },
   ]});
-  return deleted.deletedCount > 0;
+  logger.info(`[Token Revoke] Token: ${token}, Result: ${result.deletedCount > 0 ? 'Success' : 'Not Found'}`);
+  return result.deletedCount > 0;
 };
 
+// Introspection with Expiry Check
 server.introspect = async function (token) {
   const found = await AccessToken.findOne({ accessToken: token }).populate('user');
   if (!found || new Date() > new Date(found.issuedAt.getTime() + found.expiresIn * 1000)) {
@@ -164,6 +171,7 @@ server.introspect = async function (token) {
   };
 };
 
+// JWT ID Token Generator
 async function generateIdToken(userId, clientId) {
   const user = await User.findById(userId);
   if (!user) return null;
@@ -183,18 +191,18 @@ async function generateIdToken(userId, clientId) {
   });
 }
 
-server.getJwks = function () {
+// JWKS Endpoint
+server.getJWKS = function () {
+  const publicKey = crypto.createPublicKey(PUBLIC_KEY);
+  const jwk = publicKey.export({ format: 'jwk' });
+
   return {
-    keys: [
-      {
-        kty: 'RSA',
-        use: 'sig',
-        alg: JWT_ALG,
-        kid: 'kerliix-key-1',
-        n: PUBLIC_KEY.toString('base64'),
-        e: 'AQAB',
-      },
-    ],
+    keys: [{
+      ...jwk,
+      use: 'sig',
+      alg: JWT_ALG,
+      kid: 'kerliix-key-1',
+    }],
   };
 };
 
