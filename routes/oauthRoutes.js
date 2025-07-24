@@ -1,5 +1,5 @@
 import express from 'express';
-import oauth2Server from '../oauth/server.js';
+import oauth2Server from '../oauth/index.js';
 import { requireAuth, loadUser } from '../middleware/auth.js';
 import { ensureMfaVerified } from '../middleware/mfa.js';
 import { authenticateClient } from '../middleware/clientAuth.js';

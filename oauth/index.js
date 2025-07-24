@@ -11,8 +11,8 @@ import logger from '../config/logger.js';
 
 const JWT_ISSUER = process.env.JWT_ISSUER || 'https://auth.kerliix.com';
 const JWT_ALG = 'RS256';
-const PRIVATE_KEY = fs.readFileSync(path.join(process.cwd(), 'keys/private.pem'));
-const PUBLIC_KEY = fs.readFileSync(path.join(process.cwd(), 'keys/public.pem'));
+const PRIVATE_KEY = fs.readFileSync(path.resolve('config/keys/private.key'));
+const PUBLIC_KEY = fs.readFileSync(path.resolve('config/keys/public.key'));
 
 const server = oauth2orize.createServer();
 
